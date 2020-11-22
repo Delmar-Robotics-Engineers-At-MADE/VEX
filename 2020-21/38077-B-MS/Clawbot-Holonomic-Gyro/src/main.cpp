@@ -106,7 +106,7 @@ void normalize_motor_power (double axis1, double axis3, double axis4, double &fr
         back_right  = back_right  / max_raw_sum * 100.0;
 }
 
-void apply_motor_power (double &front_left, double &back_left, double &front_right, double &back_right) {
+void apply_motor_power (double front_left, double back_left, double front_right, double back_right) {
           //Write the manipulated values out to the motors
          front_left_motor.spin(fwd,front_left, velocityUnits::pct);
           back_left_motor.spin(fwd,back_left,  velocityUnits::pct);
@@ -115,9 +115,11 @@ void apply_motor_power (double &front_left, double &back_left, double &front_rig
 }
 
 #define PI 3.14159265
-void adjust_axes_for_heading (double &x, double&y) {
+#define FORMAT "%.1f" /* 1 decimal place  (0.1) */
+
+void adjust_axes_for_heading (double &y, double&x) {
   // reference: https://pdocs.kauailabs.com/navx-mxp/examples/field-oriented-drive/
-  double gyro_degrees = InertialSensor.rotation(degrees);
+  double gyro_degrees = InertialSensor.heading(degrees);
   float gyro_radians = gyro_degrees * PI/180; 
   float temp = y * cos(gyro_radians) + x * sin(gyro_radians);
   x = -y * sin(gyro_radians) + x * cos(gyro_radians);
@@ -145,6 +147,19 @@ int main() {
     double axis1 = Controller1.Axis1.position(pct);
     double axis3 = Controller1.Axis3.position(pct);
     double axis4 = Controller1.Axis4.position(pct);
+
+    Brain.Screen.setCursor(1, 1);
+    Brain.Screen.print("Rotation:");
+    Brain.Screen.print(FORMAT, InertialSensor.heading(degrees));
+    Brain.Screen.newLine();
+    Brain.Screen.print("Y Before: ");
+    Brain.Screen.print(FORMAT, axis3);
+
+    adjust_axes_for_heading (axis3, axis4);
+
+    Brain.Screen.newLine();
+    Brain.Screen.print("Y After : ");
+    Brain.Screen.print(FORMAT, axis3);
 
     //Get the raw sums of the X and Y joystick axes
     double front_left  = (double)(axis3 + axis4);
