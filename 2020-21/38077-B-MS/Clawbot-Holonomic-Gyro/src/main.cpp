@@ -116,6 +116,7 @@ void apply_motor_power (double front_left, double back_left, double front_right,
 
 #define PI 3.14159265
 #define FORMAT "%.1f" /* 1 decimal place  (0.1) */
+#define SPINSCALE 0.5
 
 void adjust_axes_for_heading (double &y, double&x) {
   // reference: https://pdocs.kauailabs.com/navx-mxp/examples/field-oriented-drive/
@@ -143,10 +144,29 @@ int main() {
   Brain.Screen.setFillColor(transparent);
 
   while(true) {
-    // get the axes values
-    double axis1 = Controller1.Axis1.position(pct);
-    double axis3 = Controller1.Axis3.position(pct);
-    double axis4 = Controller1.Axis4.position(pct);
+
+    if (Controller1.ButtonB.pressing()) {  // reset 0 heading to current heading
+      InertialSensor.setHeading(0, degrees);
+    }
+
+    double axis1 = 0;
+    double axis3 = 0;
+    double axis4 = 0;
+
+    if (Controller1.ButtonUp.pressing()) {
+      axis3 = 50; axis4 = 0; axis1 = 0;
+    } else if (Controller1.ButtonDown.pressing()) {
+       axis3 = -50; axis4 = 0; axis1 = 0;
+    } else if (Controller1.ButtonLeft.pressing()) {
+       axis3 = 0; axis4 = -50; axis1 = 0;
+    } else if (Controller1.ButtonRight.pressing()) {
+       axis3 = 0; axis4 = 50; axis1 = 0;
+    } else {
+      // get the axes values
+      axis1 = Controller1.Axis1.position(pct) * SPINSCALE;
+      axis3 = Controller1.Axis3.position(pct);
+      axis4 = Controller1.Axis4.position(pct);
+    }
 
     Brain.Screen.setCursor(1, 1);
     Brain.Screen.print("Rotation:");
