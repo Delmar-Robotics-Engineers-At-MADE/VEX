@@ -74,6 +74,8 @@
 using namespace vex;
 
 void normalize_motor_power (double axis1, double axis3, double axis4, double &front_left, double &back_left, double &front_right, double &back_right) {
+  // Reference: https://www.robotmesh.com/studio/5be40c90c8f17a1f5796fd35?fbclid=IwAR3g3JMtKeQtWPKUU2bsRnmOdJsWAlkyqhnRw0QpEnHRVIeOMx74JPqXGWE
+
         //Find the largest possible sum of X and Y
         double max_raw_sum = (double)(abs(axis3) + abs(axis4));
         
