@@ -14,6 +14,9 @@ motor front_right_motor = motor(PORT2, ratio18_1, true);
 motor front_left_motor = motor(PORT1, ratio18_1, false);
 controller Controller1 = controller(primary);
 inertial InertialSensor = inertial(PORT16);
+line LineTrackerA = line(Brain.ThreeWirePort.A);
+line LineTrackerB = line(Brain.ThreeWirePort.B);
+line LineTrackerC = line(Brain.ThreeWirePort.C);
 
 // VEXcode generated functions
 // define variable for remote controller enable/disable

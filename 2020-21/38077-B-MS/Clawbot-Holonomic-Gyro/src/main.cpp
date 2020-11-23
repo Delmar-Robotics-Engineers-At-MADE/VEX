@@ -7,46 +7,9 @@
 // front_left_motor     motor         1               
 // Controller1          controller                    
 // InertialSensor       inertial      16              
-// ---- END VEXCODE CONFIGURED DEVICES ----
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// Robot Configuration:
-// [Name]               [Type]        [Port(s)]
-// back_right_motor     motor         12              
-// back_left_motor      motor         11              
-// front_right_motor    motor         2               
-// front_left_motor     motor         10              
-// Controller1          controller                    
-// InertialSensor       inertial      16              
-// ---- END VEXCODE CONFIGURED DEVICES ----
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// Robot Configuration:
-// [Name]               [Type]        [Port(s)]
-// back_right_motor     motor         12              
-// back_left_motor      motor         11              
-// front_right_motor    motor         1               
-// front_left_motor     motor         10              
-// Controller1          controller                    
-// InertialSensor       inertial      16              
-// ---- END VEXCODE CONFIGURED DEVICES ----
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// Robot Configuration:
-// [Name]               [Type]        [Port(s)]
-// back_right_motor     motor         12              
-// back_left_motor      motor         9               
-// front_right_motor    motor         1               
-// front_left_motor     motor         10              
-// Controller1          controller                    
-// InertialSensor       inertial      16              
-// ---- END VEXCODE CONFIGURED DEVICES ----
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// Robot Configuration:
-// [Name]               [Type]        [Port(s)]
-// back_right_motor     motor         2               
-// back_left_motor      motor         9               
-// front_right_motor    motor         1               
-// front_left_motor     motor         10              
-// Controller1          controller                    
-// InertialSensor       inertial      16              
+// LineTrackerA         line          A               
+// LineTrackerB         line          B               
+// LineTrackerC         line          C               
 // ---- END VEXCODE CONFIGURED DEVICES ----
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
@@ -57,30 +20,43 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// Robot Configuration:
-// [Name]               [Type]        [Port(s)]
-// back_right_motor     motor         2               
-// back_left_motor      motor         9               
-// front_right_motor    motor         1               
-// front_left_motor     motor         10              
-// Controller1          controller                    
-// ---- END VEXCODE CONFIGURED DEVICES ----
-
 #include "vex.h"
 #include <algorithm>
 #include <cmath>
 
 using namespace vex;
 
+// A global instance of competition
+competition Competition;
+
+void pre_auton(void) {
+  // Initializing Robot Configuration. DO NOT REMOVE!
+  vexcodeInit();
+  
+  // calibrate gyro
+  Brain.Screen.clearScreen();
+  Brain.Screen.print("Calibrating!");
+  Brain.Screen.setFillColor(red);
+  Brain.Screen.drawRectangle(50, 50, 400, 100);
+
+  InertialSensor.startCalibration();
+  while (InertialSensor.isCalibrating()) { task::sleep(50); }
+  wait(1.0, seconds);
+
+  Brain.Screen.clearScreen();
+  Brain.Screen.setFillColor(green);
+  Brain.Screen.drawCircle(250, 125, 75);
+  Brain.Screen.setFillColor(transparent);
+}
+
 void normalize_motor_power (double axis1, double axis3, double axis4, double &front_left, double &back_left, double &front_right, double &back_right) {
   // Reference: https://www.robotmesh.com/studio/5be40c90c8f17a1f5796fd35?fbclid=IwAR3g3JMtKeQtWPKUU2bsRnmOdJsWAlkyqhnRw0QpEnHRVIeOMx74JPqXGWE
 
         //Find the largest possible sum of X and Y
-        double max_raw_sum = (double)(abs(axis3) + abs(axis4));
+        double max_raw_sum = (double)(std::abs(axis3) + std::abs(axis4));
         
         //Find the largest joystick value
-        double max_XYstick_value = (double)(std::max(abs(axis3),abs(axis4)));
+        double max_XYstick_value = (double)(std::max(std::abs(axis3),std::abs(axis4)));
         
         //The largest sum will be scaled down to the largest joystick value, and the others will be
         //scaled by the same amount to preserve directionality
@@ -129,21 +105,15 @@ void adjust_axes_for_heading (double &y, double&x) {
   y = temp;
 }
 
-int main() {
-  // Initializing Robot Configuration. DO NOT REMOVE!
-  vexcodeInit();  
+void basic_motor_calculation (double axis1, double axis3, double axis4, double &front_left, double &back_left, double &front_right, double &back_right) {
+      //Get the raw sums of the X and Y joystick axes
+    front_left  = (double)(axis3 + axis4);
+    back_left   = (double)(axis3 - axis4);
+    front_right = (double)(axis3 - axis4);
+    back_right  = (double)(axis3 + axis4);
+}
 
-  // calibrate gyro
-  Brain.Screen.print("Calibrating!");
-  Brain.Screen.setFillColor(red);
-  Brain.Screen.drawRectangle(50, 50, 400, 100);
-  InertialSensor.startCalibration();
-  while (InertialSensor.isCalibrating()) { task::sleep(50); }
-  wait(3.0, seconds);
-  Brain.Screen.clearScreen();
-  Brain.Screen.setFillColor(green);
-  Brain.Screen.drawCircle(250, 125, 75);
-  Brain.Screen.setFillColor(transparent);
+void usercontrol() {
 
   while(true) {
 
@@ -170,27 +140,158 @@ int main() {
       axis4 = Controller1.Axis4.position(pct);
     }
 
-    Brain.Screen.setCursor(1, 1);
-    Brain.Screen.print("Rotation:");
-    Brain.Screen.print(FORMAT, InertialSensor.heading(degrees));
-    Brain.Screen.newLine();
-    Brain.Screen.print("Y Before: ");
-    Brain.Screen.print(FORMAT, axis3);
+    // Brain.Screen.setCursor(1, 1);
+    // Brain.Screen.print("Rotation:");
+    // Brain.Screen.print(FORMAT, InertialSensor.heading(degrees));
+    // Brain.Screen.newLine();
+    // Brain.Screen.print("Y Before: ");
+    // Brain.Screen.print(FORMAT, axis3);
 
     adjust_axes_for_heading (axis3, axis4);
 
-    Brain.Screen.newLine();
-    Brain.Screen.print("Y After : ");
-    Brain.Screen.print(FORMAT, axis3);
+    // Brain.Screen.newLine();
+    // Brain.Screen.print("Y After : ");
+    // Brain.Screen.print(FORMAT, axis3);
 
-    //Get the raw sums of the X and Y joystick axes
-    double front_left  = (double)(axis3 + axis4);
-    double back_left   = (double)(axis3 - axis4);
-    double front_right = (double)(axis3 - axis4);
-    double back_right  = (double)(axis3 + axis4);
-
+    double front_left  = 0; double back_left   = 0; double front_right = 0; double back_right  = 0;
+    basic_motor_calculation (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
     normalize_motor_power (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
     apply_motor_power (front_left, back_left, front_right, back_right);
 
     }
+}
+
+#define LINELOST 0
+#define LINECENTERED 1
+#define LINEOFFTOLEFT 2
+#define LINEOFFTORIGHT 3
+#define LINETHICKOFFTOLEFT 4
+#define LINETHICKOFFTORIGHT 5
+#define LINEALLON 6
+int line_tracker_status (int threshold) {
+  int result = LINELOST;
+  int a = LineTrackerA.reflectivity(); int b = LineTrackerB.reflectivity(); int c = LineTrackerC.reflectivity();
+  bool aON = (a >= threshold); bool bON = (b >= threshold); bool cON = (c >= threshold);
+  if (aON && bON && cON) {result = LINEALLON;}
+  else if (aON && bON) {result = LINETHICKOFFTORIGHT;}
+  else if (bON && cON) {result = LINETHICKOFFTOLEFT;}
+  else if (aON) {result = LINEOFFTORIGHT;}
+  else if (bON) {result = LINECENTERED;}
+  else if (cON) {result = LINEOFFTOLEFT;}
+  return result;
+}
+
+#define LINESPEED 30
+#define LINECORRECT 10
+#define LINETHRESHOLD 12
+#define GYROCORRECT 15
+#define GYROTOLERANCE 5
+
+void autonomous(void) {
+
+  // while (true) {
+  //   // Clear the screen and set the cursor to top left corner on each loop
+  //   Brain.Screen.clearScreen();
+  //   Brain.Screen.setCursor(1, 1);
+  //   Brain.Screen.print("Reflectivity A: ");
+  //   Brain.Screen.print(FORMAT, static_cast<float>(LineTrackerA.reflectivity()));
+  //   Brain.Screen.newLine();
+  //   Brain.Screen.print("Reflectivity B: ");
+  //   Brain.Screen.print(FORMAT, static_cast<float>(LineTrackerB.reflectivity()));
+  //   Brain.Screen.newLine();
+  //   Brain.Screen.print("Reflectivity C: ");
+  //   Brain.Screen.print(FORMAT, static_cast<float>(LineTrackerC.reflectivity()));
+  //   Brain.Screen.newLine();
+  //   // A brief delay to allow text to be printed without distortion or tearing
+  //   wait(0.05, seconds);
+  // wait(5, msec);
+  // }
+
+// while (true) {
+//   Brain.Screen.clearScreen();
+//   Brain.Screen.setCursor(1, 1);
+//   Brain.Screen.print("Line status: ");
+//   Brain.Screen.print(line_tracker_status());
+//   wait (50, msec);
+// }
+
+  // drive straight line until we lose line
+
+  double front_left  = 0; double back_left   = 0; double front_right = 0; double back_right  = 0;
+  InertialSensor.setRotation(0, degrees); // reset heading to 0
+  bool giveUp = false;
+  bool lookingForLine = false;
+
+  while (!giveUp) {
+
+    // figure out what to do
+
+    int lineStatus = line_tracker_status(LINETHRESHOLD);
+    int axis1 = 0; int axis3 = 0; int axis4 = 0;
+    if (lineStatus == LINECENTERED || lineStatus == LINEALLON) {
+      // basicaly go straight, but correct for gyro
+      lookingForLine = false;
+      double rotation = InertialSensor.rotation(degrees);
+      if (rotation < -GYROTOLERANCE) {axis1 = GYROCORRECT;}
+      else if (rotation > GYROTOLERANCE) {axis1 = -GYROCORRECT;}
+      else axis1 = 0;
+      axis3 = LINESPEED; axis4 = 0;
+    } else if (lineStatus == LINEOFFTOLEFT || lineStatus == LINETHICKOFFTOLEFT) {
+      // veer right to get centered again
+      lookingForLine = false; 
+      axis1 = 0; axis3 = LINESPEED; axis4 = LINECORRECT;
+    } else if (lineStatus == LINEOFFTORIGHT || lineStatus == LINETHICKOFFTORIGHT) {
+      // veer left to get centered again
+      axis1 = 0; axis3 = LINESPEED; axis4 = -LINECORRECT;
+      lookingForLine = false; 
+    } else if (lookingForLine) {
+      if (InertialSensor.rotation(degrees) >= 300) { // swiveled for too long
+        giveUp = true;
+      } else {
+        axis1 = GYROCORRECT; axis3 = 0; axis4 = LINESPEED / 2; // swivel for a while until find line
+      }
+    } else if (lineStatus == LINELOST) {
+      // wait a little and maybe line will reappear
+      wait (0.1, sec);
+      if (line_tracker_status(LINETHRESHOLD) == LINELOST) { // still lost, try once to find it again by swiveling
+        InertialSensor.setRotation(0, degrees); // will look for line until swiveled too far
+        lookingForLine = true;
+      }
+    }
+
+    // do it
+    basic_motor_calculation (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
+    normalize_motor_power (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
+    apply_motor_power (front_left, back_left, front_right, back_right);
+
+  } // while not give up
+
+  // give up
+  apply_motor_power (0, 0, 0, 0);
+
+  while (true) {
+    Brain.Screen.clearScreen();
+    Brain.Screen.setCursor(1, 1);
+    Brain.Screen.print("Line status: ");
+    Brain.Screen.print(line_tracker_status(LINETHRESHOLD));
+    Brain.Screen.newLine();
+    Brain.Screen.print("rotation: ");
+    Brain.Screen.print(InertialSensor.rotation(degrees));
+    wait (50, msec);
+  }
+
+}
+
+int main() {
+  // Set up callbacks for autonomous and driver control periods.
+  Competition.autonomous(autonomous);
+  Competition.drivercontrol(usercontrol);
+
+  // Run the pre-autonomous function.
+  pre_auton();
+
+  // Prevent main from exiting with an infinite loop.
+  while (true) {
+    wait(100, msec);
+  }
 }
