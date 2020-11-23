@@ -49,7 +49,7 @@ void pre_auton(void) {
   Brain.Screen.setFillColor(transparent);
 }
 
-void normalize_motor_power (double axis1, double axis3, double axis4, double &front_left, double &back_left, double &front_right, double &back_right) {
+void normalize_motor_power (int axis1, int axis3, int axis4, double &front_left, double &back_left, double &front_right, double &back_right) {
   // Reference: https://www.robotmesh.com/studio/5be40c90c8f17a1f5796fd35?fbclid=IwAR3g3JMtKeQtWPKUU2bsRnmOdJsWAlkyqhnRw0QpEnHRVIeOMx74JPqXGWE
 
         //Find the largest possible sum of X and Y
@@ -96,7 +96,7 @@ void apply_motor_power (double front_left, double back_left, double front_right,
 #define FORMAT "%.1f" /* 1 decimal place  (0.1) */
 #define SPINSCALE 0.5
 
-void adjust_axes_for_heading (double &y, double&x) {
+void adjust_axes_for_heading (int &y, int&x) {
   // reference: https://pdocs.kauailabs.com/navx-mxp/examples/field-oriented-drive/
   double gyro_degrees = InertialSensor.heading(degrees);
   float gyro_radians = gyro_degrees * PI/180; 
@@ -105,12 +105,22 @@ void adjust_axes_for_heading (double &y, double&x) {
   y = temp;
 }
 
-void basic_motor_calculation (double axis1, double axis3, double axis4, double &front_left, double &back_left, double &front_right, double &back_right) {
+void basic_motor_calculation (int axis1, int axis3, int axis4, double &front_left, double &back_left, double &front_right, double &back_right) {
       //Get the raw sums of the X and Y joystick axes
     front_left  = (double)(axis3 + axis4);
     back_left   = (double)(axis3 - axis4);
     front_right = (double)(axis3 - axis4);
     back_right  = (double)(axis3 + axis4);
+}
+
+#define GYROCORRECT 20
+#define GYROTOLERANCE 5
+
+void stabilize_axes_by_gyro (int &axis1) {
+      double rotation = InertialSensor.rotation(degrees);
+      if (rotation < -GYROTOLERANCE) {axis1 = GYROCORRECT;}
+      else if (rotation > GYROTOLERANCE) {axis1 = -GYROCORRECT;}
+      else axis1 = 0;
 }
 
 void usercontrol() {
@@ -119,20 +129,25 @@ void usercontrol() {
 
     if (Controller1.ButtonB.pressing()) {  // reset 0 heading to current heading
       InertialSensor.setHeading(0, degrees);
+      InertialSensor.setRotation(0, degrees);
     }
 
-    double axis1 = 0;
-    double axis3 = 0;
-    double axis4 = 0;
+    int axis1 = 0;
+    int axis3 = 0;
+    int axis4 = 0;
 
     if (Controller1.ButtonUp.pressing()) {
       axis3 = 50; axis4 = 0; axis1 = 0;
+      stabilize_axes_by_gyro(axis1);
     } else if (Controller1.ButtonDown.pressing()) {
-       axis3 = -50; axis4 = 0; axis1 = 0;
+      axis3 = -50; axis4 = 0; axis1 = 0;
+      stabilize_axes_by_gyro(axis1);
     } else if (Controller1.ButtonLeft.pressing()) {
-       axis3 = 0; axis4 = -50; axis1 = 0;
+      axis3 = 0; axis4 = -50; axis1 = 0;
+      stabilize_axes_by_gyro(axis1);
     } else if (Controller1.ButtonRight.pressing()) {
-       axis3 = 0; axis4 = 50; axis1 = 0;
+      axis3 = 0; axis4 = 50; axis1 = 0;
+      stabilize_axes_by_gyro(axis1);
     } else {
       // get the axes values
       axis1 = Controller1.Axis1.position(pct) * SPINSCALE;
@@ -184,8 +199,7 @@ int line_tracker_status (int threshold) {
 #define LINESPEED 30
 #define LINECORRECT 10
 #define LINETHRESHOLD 12
-#define GYROCORRECT 20
-#define GYROTOLERANCE 5
+
 
 void autonomous(void) {
 
@@ -233,10 +247,7 @@ void autonomous(void) {
       lookingForLine = false;
     } else if (lineStatus == LINECENTERED || lineStatus == LINEALLON) {
       // basicaly go straight, but correct for gyro
-      double rotation = InertialSensor.rotation(degrees);
-      if (rotation < -GYROTOLERANCE) {axis1 = GYROCORRECT;}
-      else if (rotation > GYROTOLERANCE) {axis1 = -GYROCORRECT;}
-      else axis1 = 0;
+      stabilize_axes_by_gyro (axis1);
       axis3 = LINESPEED; axis4 = 0;
     } else if (lineStatus == LINEOFFTOLEFT || lineStatus == LINETHICKOFFTOLEFT) {
       // veer right to get centered again
