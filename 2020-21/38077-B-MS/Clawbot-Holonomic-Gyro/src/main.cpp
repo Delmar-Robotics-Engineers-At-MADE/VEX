@@ -184,7 +184,7 @@ int line_tracker_status (int threshold) {
 #define LINESPEED 30
 #define LINECORRECT 10
 #define LINETHRESHOLD 12
-#define GYROCORRECT 15
+#define GYROCORRECT 20
 #define GYROTOLERANCE 5
 
 void autonomous(void) {
@@ -228,9 +228,11 @@ void autonomous(void) {
 
     int lineStatus = line_tracker_status(LINETHRESHOLD);
     int axis1 = 0; int axis3 = 0; int axis4 = 0;
-    if (lineStatus == LINECENTERED || lineStatus == LINEALLON) {
-      // basicaly go straight, but correct for gyro
+    if (lookingForLine && (lineStatus == LINECENTERED || lineStatus == LINEALLON)) { // found line again
+      InertialSensor.setRotation(0, degrees); // reset heading to 0
       lookingForLine = false;
+    } else if (lineStatus == LINECENTERED || lineStatus == LINEALLON) {
+      // basicaly go straight, but correct for gyro
       double rotation = InertialSensor.rotation(degrees);
       if (rotation < -GYROTOLERANCE) {axis1 = GYROCORRECT;}
       else if (rotation > GYROTOLERANCE) {axis1 = -GYROCORRECT;}
@@ -238,12 +240,10 @@ void autonomous(void) {
       axis3 = LINESPEED; axis4 = 0;
     } else if (lineStatus == LINEOFFTOLEFT || lineStatus == LINETHICKOFFTOLEFT) {
       // veer right to get centered again
-      lookingForLine = false; 
       axis1 = 0; axis3 = LINESPEED; axis4 = LINECORRECT;
     } else if (lineStatus == LINEOFFTORIGHT || lineStatus == LINETHICKOFFTORIGHT) {
       // veer left to get centered again
       axis1 = 0; axis3 = LINESPEED; axis4 = -LINECORRECT;
-      lookingForLine = false; 
     } else if (lookingForLine) {
       if (InertialSensor.rotation(degrees) >= 300) { // swiveled for too long
         giveUp = true;
