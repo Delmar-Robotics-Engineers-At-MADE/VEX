@@ -32,10 +32,38 @@ using namespace vex;
 // A global instance of competition
 competition Competition;
 
+// flag so pre_auton runs before tele-op when off competition switch
+bool pre_auton_done = false;
+
+// ******************************************************* Pre-auto ****************************************************
+
 void pre_auton(void) {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
-  
+
+  // find zero position for claw by checking current draw
+  Brain.Screen.clearScreen();
+  Brain.Screen.print("Zeroing claw!");
+  MotorClaw.setMaxTorque(80, vex::percentUnits::pct);
+  MotorClaw.setVelocity(75,vex::velocityUnits::pct);
+  MotorClaw.spin(vex::directionType::rev);
+  while((MotorClaw.current(vex::amp)<1.0)){
+     vex::task::sleep(100);
+     Brain.Screen.print(MotorClaw.power());
+  }
+  MotorClaw.stop();
+  MotorClaw.setRotation(0,vex::deg);
+  MotorClaw.setStopping(vex::brakeType::hold);
+
+  // // find zero position for shoulder by hitting bumper
+  // while(! BumperA.pressing()){
+  //   MotorShoulder.spin(vex::directionType::rev); 
+  // }
+  // MotorShoulder.stop();
+  MotorShoulder.setRotation(0,vex::rotationUnits::deg);
+  MotorShoulder.setStopping(vex::brakeType::hold);
+  MotorShoulder.setVelocity(75,vex::velocityUnits::rpm);
+
   // calibrate gyro
   Brain.Screen.clearScreen();
   Brain.Screen.print("Calibrating!");
@@ -46,29 +74,12 @@ void pre_auton(void) {
   while (InertialSensor.isCalibrating()) { task::sleep(50); }
   wait(1.0, seconds);
 
-  // find zero position for claw by checking current draw
-  MotorClaw.setMaxTorque(50, vex::percentUnits::pct);
-  // MotorClaw.spin(vex::directionType::rev);
-  // while((MotorClaw.current(vex::amp)<.5)){
-  //     vex::task::sleep(100);
-  // }
-  // MotorClaw.stop();
-  MotorClaw.setRotation(0,vex::deg);
-  MotorClaw.setStopping(vex::brakeType::hold);
-    
-  // // find zero position for shoulder by hitting bumper
-  // while(! BumperA.pressing()){
-  //   MotorShoulder.spin(vex::directionType::rev);
-  // }
-  // MotorShoulder.stop();
-  MotorShoulder.setRotation(0,vex::rotationUnits::deg);
-  MotorShoulder.setStopping(vex::brakeType::hold);
-  MotorShoulder.setVelocity(75,vex::velocityUnits::rpm);
-
   Brain.Screen.clearScreen();
   Brain.Screen.setFillColor(green);
   Brain.Screen.drawCircle(250, 125, 75);
   Brain.Screen.setFillColor(transparent);
+
+  pre_auton_done = true;
 }
 
 void normalize_motor_power (int axis1, int axis3, int axis4, double &front_left, double &back_left, double &front_right, double &back_right) {
@@ -149,6 +160,10 @@ void stabilize_axes_by_gyro (int &axis1) {
 
 void usercontrol() {
 
+    while (!pre_auton_done) {
+      vex::task::sleep(100);
+    }
+
   while(true) {
 
     if (Controller1.ButtonB.pressing()) {  // reset 0 heading to current heading
@@ -163,11 +178,11 @@ void usercontrol() {
     }
     else if(Controller1.ButtonR1.pressing()) { // highest position
           MotorShoulder.setVelocity(75, vex::velocityUnits::pct);
-          MotorShoulder.startRotateTo(550,vex::rotationUnits::deg);
+          MotorShoulder.startRotateTo(840,vex::rotationUnits::deg);
     }
     else if(Controller1.ButtonR2.pressing()) { // lowest position
           MotorShoulder.setVelocity(20, vex::velocityUnits::pct);
-          MotorShoulder.startRotateTo(27,vex::rotationUnits::deg);
+          MotorShoulder.startRotateTo(0,vex::rotationUnits::deg);
     }
     else { // stop
         MotorShoulder.stop();
@@ -255,7 +270,7 @@ int line_tracker_status (int threshold) {
 
 #define LINESPEED 30
 #define LINECORRECT 10
-#define LINETHRESHOLD 12
+#define LINETHRESHOLD 8
 
 // ******************************************************* Autonomous *******************************************************************
 
