@@ -49,7 +49,7 @@ void pre_auton(void) {
   MotorClaw.spin(vex::directionType::rev);
   while((MotorClaw.current(vex::amp)<1.0)){
      vex::task::sleep(100);
-     Brain.Screen.print(MotorClaw.power());
+     //Brain.Screen.print(MotorClaw.power());
   }
   MotorClaw.stop();
   MotorClaw.setRotation(0,vex::deg);
@@ -227,9 +227,9 @@ void usercontrol() {
       axis4 = Controller1.Axis4.position(pct);
     }
 
-    // Brain.Screen.setCursor(1, 1);
-    // Brain.Screen.print("Rotation:");
-    // Brain.Screen.print(FORMAT, InertialSensor.heading(degrees));
+    Brain.Screen.setCursor(1, 1);
+    Brain.Screen.print("Rotation:");
+    Brain.Screen.print(FORMAT, InertialSensor.heading(degrees));
     // Brain.Screen.newLine();
     // Brain.Screen.print("Y Before: ");
     // Brain.Screen.print(FORMAT, axis3);
