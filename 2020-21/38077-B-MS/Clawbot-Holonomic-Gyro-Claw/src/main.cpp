@@ -26,6 +26,7 @@
 #include "vex.h"
 #include <algorithm>
 #include <cmath>
+#include <robot-config.h>
 
 using namespace vex;
 
@@ -47,7 +48,7 @@ void pre_auton(void) {
   MotorClaw.setMaxTorque(80, vex::percentUnits::pct);
   MotorClaw.setVelocity(75,vex::velocityUnits::pct);
   MotorClaw.spin(vex::directionType::rev);
-  while((MotorClaw.current(vex::amp)<1.0)){
+  while((MotorClaw.current(vex::amp)<0.6)){
      vex::task::sleep(100);
      //Brain.Screen.print(MotorClaw.power());
   }
@@ -160,9 +161,9 @@ void stabilize_axes_by_gyro (int &axis1) {
 
 void usercontrol() {
 
-    while (!pre_auton_done) {
-      vex::task::sleep(100);
-    }
+  while (!pre_auton_done) {
+    vex::task::sleep(100);
+  }
 
   while(true) {
 
@@ -172,15 +173,18 @@ void usercontrol() {
     }
 
     // Arm Control
-    if(Controller1.ButtonR1.pressing() && Controller1.ButtonR2.pressing()) { // middle position
+    if((Controller1.ButtonR1.pressing() && Controller1.ButtonR2.pressing())
+    || (Controller2.ButtonR1.pressing() && Controller2.ButtonR2.pressing())) { // middle position
           MotorShoulder.setVelocity(50, vex::velocityUnits::pct);
           MotorShoulder.startRotateTo(300,vex::rotationUnits::deg);
     }
-    else if(Controller1.ButtonR1.pressing()) { // highest position
+    else if(Controller1.ButtonR1.pressing()
+         || Controller2.ButtonR1.pressing()) { // highest position
           MotorShoulder.setVelocity(75, vex::velocityUnits::pct);
           MotorShoulder.startRotateTo(840,vex::rotationUnits::deg);
     }
-    else if(Controller1.ButtonR2.pressing()) { // lowest position
+    else if(Controller1.ButtonR2.pressing()
+         || Controller2.ButtonR2.pressing()) { // lowest position
           MotorShoulder.setVelocity(20, vex::velocityUnits::pct);
           MotorShoulder.startRotateTo(0,vex::rotationUnits::deg);
     }
@@ -189,13 +193,16 @@ void usercontrol() {
     }
 
     //Claw Control
-    if(Controller1.ButtonL1.pressing() && Controller1.ButtonL2.pressing()) { // middle position
+    if((Controller1.ButtonL1.pressing() && Controller1.ButtonL2.pressing()) 
+    || (Controller2.ButtonL1.pressing() && Controller2.ButtonL2.pressing())) { // middle position
           MotorClaw.startRotateTo(150,vex::rotationUnits::deg);
     }
-    else if(Controller1.ButtonL1.pressing()) { // closed position
+    else if(Controller1.ButtonL1.pressing()
+         || Controller2.ButtonL1.pressing()) { // closed position
           MotorClaw.startRotateTo(250,vex::rotationUnits::deg);
     }
-    else if(Controller1.ButtonL2.pressing()) { // widest position
+    else if(Controller1.ButtonL2.pressing()
+         || Controller2.ButtonL2.pressing()) { // widest position
           MotorClaw.startRotateTo(0,vex::rotationUnits::deg);
     }
     else { // stop
@@ -227,9 +234,9 @@ void usercontrol() {
       axis4 = Controller1.Axis4.position(pct);
     }
 
-    Brain.Screen.setCursor(1, 1);
-    Brain.Screen.print("Rotation:");
-    Brain.Screen.print(FORMAT, InertialSensor.heading(degrees));
+    // Brain.Screen.setCursor(1, 1);
+    // Brain.Screen.print("Rotation:");
+    // Brain.Screen.print(InertialSensor.heading(degrees));
     // Brain.Screen.newLine();
     // Brain.Screen.print("Y Before: ");
     // Brain.Screen.print(FORMAT, axis3);
@@ -275,6 +282,10 @@ int line_tracker_status (int threshold) {
 // ******************************************************* Autonomous *******************************************************************
 
 void autonomous(void) {
+
+  while (!pre_auton_done) {
+    vex::task::sleep(100);
+  }
 
   // while (true) {
   //   // Clear the screen and set the cursor to top left corner on each loop

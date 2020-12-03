@@ -13,6 +13,7 @@ motor back_left_motor = motor(PORT9, ratio18_1, false); // 11 for scratchbot
 motor front_right_motor = motor(PORT1, ratio18_1, true); // 2 for scratchbot
 motor front_left_motor = motor(PORT10, ratio18_1, false); // 1 for scratchbot
 controller Controller1 = controller(primary);
+controller Controller2 = controller(partner);
 inertial InertialSensor = inertial(PORT16);
 line LineTrackerA = line(Brain.ThreeWirePort.A);
 line LineTrackerB = line(Brain.ThreeWirePort.B);

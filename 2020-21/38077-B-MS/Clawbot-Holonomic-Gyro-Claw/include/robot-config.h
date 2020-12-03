@@ -8,6 +8,7 @@ extern motor back_left_motor;
 extern motor front_right_motor;
 extern motor front_left_motor;
 extern controller Controller1;
+extern controller Controller2;
 extern inertial InertialSensor;
 extern line LineTrackerA;
 extern line LineTrackerB;
