@@ -1,0 +1,134 @@
+{"mode":"Text","textContent":"
+// Include the V5 Library
+#include \"vex.h\"
+  
+// Allows for easier use of the VEX Library
+using namespace vex;
+
+// User defined function
+void myblockfunction_setMotorLF_speed(double myblockfunction_setMotorLF_speed__speed);
+// User defined function
+void myblockfunction_SetMotorRF_speed(double myblockfunction_SetMotorRF_speed__speed);
+// User defined function
+void myblockfunction_SetMotorRR_speed(double myblockfunction_SetMotorRR_speed__speed);
+// User defined function
+void myblockfunction_SetMotorLR_speed(double myblockfunction_SetMotorLR_speed__speed);
+
+int Vision10_objectIndex = 0, Brain_precision = 0, Controller1_precision = 0;
+
+float myVariable, motorSpeed;
+
+// User defined function
+void myblockfunction_setMotorLF_speed(double myblockfunction_setMotorLF_speed__speed) {
+  ServoC.setPosition((45.0 - myblockfunction_setMotorLF_speed__speed / 2.0) - 50.0, degrees);
+}
+
+// User defined function
+void myblockfunction_SetMotorRF_speed(double myblockfunction_SetMotorRF_speed__speed) {
+  ServoA.setPosition((myblockfunction_SetMotorRF_speed__speed / 2.0 + 45.0) - 50.0, degrees);
+}
+
+// User defined function
+void myblockfunction_SetMotorRR_speed(double myblockfunction_SetMotorRR_speed__speed) {
+  ServoB.setPosition((myblockfunction_SetMotorRR_speed__speed / 2.0 + 45.0) - 50.0, degrees);
+}
+
+// User defined function
+void myblockfunction_SetMotorLR_speed(double myblockfunction_SetMotorLR_speed__speed) {
+  ServoD.setPosition((45.0 - myblockfunction_SetMotorLR_speed__speed / 2.0) - 50.0, degrees);
+}
+
+// Used to find the format string for printing numbers with the
+// desired number of decimal places
+const char* printToBrain_numberFormat() {
+  // look at the current precision setting to find the format string
+  switch(Brain_precision){
+    case 0:  return \"%.0f\"; // 0 decimal places (1)
+    case 1:  return \"%.1f\"; // 1 decimal place  (0.1)
+    case 2:  return \"%.2f\"; // 2 decimal places (0.01)
+    case 3:  return \"%.3f\"; // 3 decimal places (0.001)
+    default: return \"%f\"; // use the print system default for everthing else
+  }
+}
+
+// \"when started\" hat block
+int whenStarted1() {
+  while (true) {
+    if (Controller1.ButtonA.pressing()) {
+      Vision10.takeSnapshot(Vision10__CHGUP_BALL_RED);
+      if (Vision10.objectCount > 0) {
+        Vision10_objectIndex = static_cast<int>(1.0) - 1;
+        Brain.Screen.setCursor(1, 1);
+        Brain.Screen.print(printToBrain_numberFormat(), static_cast<float>(Vision10.objects[Vision10_objectIndex].width));
+        Brain.Screen.setCursor(2, 1);
+        Brain.Screen.print(printToBrain_numberFormat(), static_cast<float>(Vision10.objectCount));
+        Brain.Screen.setCursor(3, 1);
+        Brain.Screen.print(printToBrain_numberFormat(), static_cast<float>(Vision10.objects[Vision10_objectIndex].centerX));
+        if (Vision10.objects[Vision10_objectIndex].width < 75.0) {
+          if (Vision10.objects[Vision10_objectIndex].centerX > 180.0) {
+            myblockfunction_setMotorLF_speed(100.0);
+            myblockfunction_SetMotorRF_speed(-100.0);
+            myblockfunction_SetMotorRR_speed(-100.0);
+            myblockfunction_SetMotorLR_speed(100.0);
+          }
+          else {
+            if (Vision10.objects[Vision10_objectIndex].centerX < 140.0) {
+              myblockfunction_setMotorLF_speed(-100.0);
+              myblockfunction_SetMotorRF_speed(100.0);
+              myblockfunction_SetMotorRR_speed(100.0);
+              myblockfunction_SetMotorLR_speed(-100.0);
+            }
+            else {
+              myblockfunction_setMotorLF_speed(100.0);
+              myblockfunction_SetMotorRF_speed(100.0);
+              myblockfunction_SetMotorRR_speed(100.0);
+              myblockfunction_SetMotorLR_speed(100.0);
+            }
+          }
+        }
+        else {
+          myblockfunction_setMotorLF_speed(0.0);
+          myblockfunction_SetMotorRF_speed(0.0);
+          myblockfunction_SetMotorRR_speed(0.0);
+          myblockfunction_SetMotorLR_speed(0.0);
+        }
+      }
+    }
+    else {
+      myblockfunction_setMotorLF_speed(Controller1.Axis2.position() * Controller1.Axis1.position() + Controller1.Axis4.position());
+      myblockfunction_SetMotorRF_speed((Controller1.Axis2.position() - Controller1.Axis1.position()) - Controller1.Axis4.position());
+      myblockfunction_SetMotorRR_speed((Controller1.Axis2.position() + Controller1.Axis1.position()) - Controller1.Axis4.position());
+      myblockfunction_SetMotorLR_speed((Controller1.Axis2.position() - Controller1.Axis1.position()) + Controller1.Axis4.position());
+    }
+  wait(5, msec);
+  }
+  return 0;
+}
+
+
+int main() {
+  // post event registration
+
+  // wait for rotation sensor to fully initialize
+  wait(30, msec);
+
+  whenStarted1();
+}
+","textLanguage":"cpp","rconfig":[{"port":[1],"name":"ServoA","customName":false,"deviceType":"Servo","setting":{},"triportSourcePort":22},{"port":[],"name":"Controller1",
+"customName":false,"deviceType":"Controller","setting":{"left":"","leftDir":"false","right":"","rightDir":"false","upDown":"","upDownDir":"false","xB":"","xBDir":"false",
+"drive":"none","id":"primary"},"triportSourcePort":22},{"port":[2],"name":"ServoB","customName":false,"deviceType":"Servo","setting":{"id":"partner"},"triportSourcePort":22},
+{"port":[3],"name":"ServoC","customName":false,"deviceType":"Servo","setting":{"id":"partner"},"triportSourcePort":22},
+{"port":[4],"name":"ServoD","customName":false,"deviceType":"Servo","setting":{"id":"partner"},"triportSourcePort":22},
+{"port":[10],"name":"Vision10","customName":false,"deviceType":"Vision","setting":{"config":"{\"config\":
+{\"brightness\":50,\"signatures\":[
+{\"name\":\"CHGUP_BALL_BLUE\",\"parameters\":{\"uMin\":-3347,\"uMax\":-2737,\"uMean\":-3042,\"vMin\":9863,\"vMax\":12407,\"vMean\":11134,\"rgb\":1,\"type\":0,
+\"name\":\"CHGUP_BALL_BLUE\"},\"range\":3},
+{\"name\":\"CHGUP_BALL_RED\",\"parameters\":{\"uMin\":4949,\"uMax\":6023,\"uMean\":5486,\"vMin\":-1,\"vMax\":1401,\"vMean\":700,\"rgb\":1,\"type\":0,
+\"name\":\"CHGUP_BALL_RED\"},\"range\":2.5},
+{\"name\":\"SIG_3\",\"parameters\":{\"uMin\":0,\"uMax\":0,\"uMean\":0,\"vMin\":0,\"vMax\":0,\"vMean\":0,\"rgb\":0,\"type\":0,\"name\":\"SIG_3\"},\"range\":2.5},
+{\"name\":\"SIG_4\",\"parameters\":{\"uMin\":0,\"uMax\":0,\"uMean\":0,\"vMin\":0,\"vMax\":0,\"vMean\":0,\"rgb\":0,\"type\":0,\"name\":\"SIG_4\"},\"range\":2.5},
+{\"name\":\"SIG_5\",\"parameters\":{\"uMin\":0,\"uMax\":0,\"uMean\":0,\"vMin\":0,\"vMax\":0,\"vMean\":0,\"rgb\":0,\"type\":0,\"name\":\"SIG_5\"},\"range\":2.5},
+{\"name\":\"SIG_6\",\"parameters\":{\"uMin\":0,\"uMax\":0,\"uMean\":0,\"vMin\":0,\"vMax\":0,\"vMean\":0,\"rgb\":0,\"type\":0,\"name\":\"SIG_6\"},\"range\":2.5},
+{\"name\":\"SIG_7\",\"parameters\":{\"uMin\":0,\"uMax\":0,\"uMean\":0,\"vMin\":0,\"vMax\":0,\"vMean\":0,\"rgb\":0,\"type\":0,\"name\":\"SIG_7\"},\"range\":2.5}],
+\"codes\":[]}}","isConfigured":"false"},"triportSourcePort":22}],
+"slot":0,"platform":"V5","sdkVersion":"","appVersion":"","fileFormat":"1.0.0","icon":""}
