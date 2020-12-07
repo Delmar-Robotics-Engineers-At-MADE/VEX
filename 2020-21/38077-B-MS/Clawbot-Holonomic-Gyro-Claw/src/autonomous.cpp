@@ -138,17 +138,28 @@ void autonomous(void) {
         Brain.Screen.setCursor(1, 1);
         Brain.Screen.print("Running Blue Left 2 balls");
 
+        // collect ball for travelling
+        MotorClaw.startRotateTo(100,vex::rotationUnits::deg);
+
         // reverse to line, until middle side sensor sees it
-        int lineStatus = line_tracker_status(LINETHRESHOLD, LineTrackerD, LineTrackerE, LineTrackerF);
-        while (lineStatus != LINECENTERED) {
+        int lineStatus = LINELOST;
+        while (lineStatus != LINEOFFTOLEFT) {
           // basicaly go straight, but correct for gyro
           stabilize_axes_by_gyro (axis1);
-          axis3 = -LINESPEED; axis4 = 0;
+          axis3 = -LINESPEED/2; axis4 = 0;
           basic_motor_calculation (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
           normalize_motor_power (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
           apply_motor_power (front_left, back_left, front_right, back_right);
+          lineStatus = line_tracker_status(LINETHRESHOLD, LineTrackerD, LineTrackerE, LineTrackerF);
+          // Brain.Screen.setCursor(2, 1);
+          // Brain.Screen.print(lineStatus); 
         }
         apply_motor_power (0, 0, 0, 0);
+
+        // raise arm
+        MotorShoulder.setVelocity(75, vex::velocityUnits::pct);
+        MotorShoulder.startRotateTo(840,vex::rotationUnits::deg);
+
         wait (50000, msec);
         }
         break;      
