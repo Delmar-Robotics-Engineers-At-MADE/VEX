@@ -13,6 +13,9 @@ extern inertial InertialSensor;
 extern line LineTrackerA;
 extern line LineTrackerB;
 extern line LineTrackerC;
+extern line LineTrackerD;
+extern line LineTrackerE;
+extern line LineTrackerF;
 extern motor MotorClaw;
 extern motor MotorShoulder;
 

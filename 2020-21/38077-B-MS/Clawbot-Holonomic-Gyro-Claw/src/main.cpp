@@ -26,15 +26,15 @@
 #include "vex.h"
 #include <algorithm>
 #include <cmath>
-#include <robot-config.h>
+// #include <robot-config.h> ... should be included by vex.h
+#include "screen-buttons.h"
+#include "autonomous.h"
+#include "motors.h"
 
 using namespace vex;
 
 // A global instance of competition
 competition Competition;
-
-// flag so pre_auton runs before tele-op when off competition switch
-bool pre_auton_done = false;
 
 // ******************************************************* Pre-auto ****************************************************
 
@@ -43,16 +43,19 @@ void pre_auton(void) {
   vexcodeInit();
 
   // find zero position for claw by checking current draw
-  Brain.Screen.clearScreen();
-  Brain.Screen.print("Zeroing claw!");
+  // note: this motion is not allowed with field control
   MotorClaw.setMaxTorque(80, vex::percentUnits::pct);
-  MotorClaw.setVelocity(75,vex::velocityUnits::pct);
-  MotorClaw.spin(vex::directionType::rev);
-  while((MotorClaw.current(vex::amp)<0.6)){
-     vex::task::sleep(100);
-     //Brain.Screen.print(MotorClaw.power());
+  if (!Competition.isCompetitionSwitch() && !Competition.isFieldControl()) {
+    Brain.Screen.clearScreen();
+    Brain.Screen.print("Zeroing claw!");
+    MotorClaw.setVelocity(75,vex::velocityUnits::pct);
+    MotorClaw.spin(vex::directionType::rev);
+    while((MotorClaw.current(vex::amp)<0.6)){
+      vex::task::sleep(100);
+      //Brain.Screen.print(MotorClaw.power());
+    }
+    MotorClaw.stop();
   }
-  MotorClaw.stop();
   MotorClaw.setRotation(0,vex::deg);
   MotorClaw.setStopping(vex::brakeType::hold);
 
@@ -80,81 +83,16 @@ void pre_auton(void) {
   Brain.Screen.drawCircle(250, 125, 75);
   Brain.Screen.setFillColor(transparent);
 
+  if (Competition.isCompetitionSwitch() || Competition.isFieldControl()) {
+    // on competition switch, run auton selection process
+    DrawButtons();
+    while (!Brain.Screen.pressing()) task::sleep(50);
+    AutonChoice = AutonLocation();
+    // while (Brain.Screen.pressing()) task::sleep(50);
+    HiliteTouch();
+  }
+
   pre_auton_done = true;
-}
-
-void normalize_motor_power (int axis1, int axis3, int axis4, double &front_left, double &back_left, double &front_right, double &back_right) {
-  // Reference: https://www.robotmesh.com/studio/5be40c90c8f17a1f5796fd35?fbclid=IwAR3g3JMtKeQtWPKUU2bsRnmOdJsWAlkyqhnRw0QpEnHRVIeOMx74JPqXGWE
-
-        //Find the largest possible sum of X and Y
-        double max_raw_sum = (double)(std::abs(axis3) + std::abs(axis4));
-        
-        //Find the largest joystick value
-        double max_XYstick_value = (double)(std::max(std::abs(axis3),std::abs(axis4)));
-        
-        //The largest sum will be scaled down to the largest joystick value, and the others will be
-        //scaled by the same amount to preserve directionality
-        if (max_raw_sum != 0) {
-            front_left  = front_left / max_raw_sum * max_XYstick_value;
-            back_left   = back_left / max_raw_sum * max_XYstick_value;
-            front_right = front_right / max_raw_sum * max_XYstick_value;
-            back_right  = back_right / max_raw_sum * max_XYstick_value;
-        }
-        
-        //Now to consider rotation
-        //Naively add the rotational axis
-        front_left  = front_left  + axis1;
-        back_left   = back_left   + axis1;
-        front_right = front_right - axis1;
-        back_right  = back_right  - axis1;
-        
-        //What is the largest sum, or is 100 larger?
-        max_raw_sum = std::max(std::abs(front_left),std::max(std::abs(back_left),std::max(std::abs(front_right),std::max(std::abs(back_right),100.0))));
-        
-        //Scale everything down by the factor that makes the largest only 100, if it was over
-        front_left  = front_left  / max_raw_sum * 100.0;
-        back_left   = back_left   / max_raw_sum * 100.0;
-        front_right = front_right / max_raw_sum * 100.0;
-        back_right  = back_right  / max_raw_sum * 100.0;
-}
-
-void apply_motor_power (double front_left, double back_left, double front_right, double back_right) {
-          //Write the manipulated values out to the motors
-         front_left_motor.spin(fwd,front_left, velocityUnits::pct);
-          back_left_motor.spin(fwd,back_left,  velocityUnits::pct);
-        front_right_motor.spin(fwd,front_right,velocityUnits::pct);
-         back_right_motor.spin(fwd,back_right, velocityUnits::pct);
-}
-
-#define PI 3.14159265
-#define FORMAT "%.1f" /* 1 decimal place  (0.1) */
-#define SPINSCALE 0.5
-
-void adjust_axes_for_heading (int &y, int&x) {
-  // reference: https://pdocs.kauailabs.com/navx-mxp/examples/field-oriented-drive/
-  double gyro_degrees = InertialSensor.heading(degrees);
-  float gyro_radians = gyro_degrees * PI/180; 
-  float temp = y * cos(gyro_radians) + x * sin(gyro_radians);
-  x = -y * sin(gyro_radians) + x * cos(gyro_radians);
-  y = temp;
-}
-
-void basic_motor_calculation (int axis1, int axis3, int axis4, double &front_left, double &back_left, double &front_right, double &back_right) {
-      //Get the raw sums of the X and Y joystick axes
-    front_left  = (double)(axis3 + axis4);
-    back_left   = (double)(axis3 - axis4);
-    front_right = (double)(axis3 - axis4);
-    back_right  = (double)(axis3 + axis4);
-}
-
-#define GYROCORRECT 20
-#define GYROTOLERANCE 5
-
-void stabilize_axes_by_gyro (int &axis1) {
-      double rotation = InertialSensor.rotation(degrees);
-      if (rotation < -GYROTOLERANCE) {axis1 = GYROCORRECT;}
-      else if (rotation > GYROTOLERANCE) {axis1 = -GYROCORRECT;}
-      else axis1 = 0;
 }
 
 // *********************************************** User Control **************************************************
@@ -164,6 +102,9 @@ void usercontrol() {
   while (!pre_auton_done) {
     vex::task::sleep(100);
   }
+
+  Brain.Screen.clearScreen();
+  Brain.Screen.print("Driver Control");
 
   while(true) {
 
@@ -255,127 +196,8 @@ void usercontrol() {
     }
 }
 
-#define LINELOST 0
-#define LINECENTERED 1
-#define LINEOFFTOLEFT 2
-#define LINEOFFTORIGHT 3
-#define LINETHICKOFFTOLEFT 4
-#define LINETHICKOFFTORIGHT 5
-#define LINEALLON 6
-int line_tracker_status (int threshold) {
-  int result = LINELOST;
-  int a = LineTrackerA.reflectivity(); int b = LineTrackerB.reflectivity(); int c = LineTrackerC.reflectivity();
-  bool aON = (a >= threshold); bool bON = (b >= threshold); bool cON = (c >= threshold);
-  if (aON && bON && cON) {result = LINEALLON;}
-  else if (aON && bON) {result = LINETHICKOFFTORIGHT;}
-  else if (bON && cON) {result = LINETHICKOFFTOLEFT;}
-  else if (aON) {result = LINEOFFTORIGHT;}
-  else if (bON) {result = LINECENTERED;}
-  else if (cON) {result = LINEOFFTOLEFT;}
-  return result;
-}
 
-#define LINESPEED 30
-#define LINECORRECT 10
-#define LINETHRESHOLD 8
 
-// ******************************************************* Autonomous *******************************************************************
-
-void autonomous(void) {
-
-  while (!pre_auton_done) {
-    vex::task::sleep(100);
-  }
-
-  // while (true) {
-  //   // Clear the screen and set the cursor to top left corner on each loop
-  //   Brain.Screen.clearScreen();
-  //   Brain.Screen.setCursor(1, 1);
-  //   Brain.Screen.print("Reflectivity A: ");
-  //   Brain.Screen.print(FORMAT, static_cast<float>(LineTrackerA.reflectivity()));
-  //   Brain.Screen.newLine();
-  //   Brain.Screen.print("Reflectivity B: ");
-  //   Brain.Screen.print(FORMAT, static_cast<float>(LineTrackerB.reflectivity()));
-  //   Brain.Screen.newLine();
-  //   Brain.Screen.print("Reflectivity C: ");
-  //   Brain.Screen.print(FORMAT, static_cast<float>(LineTrackerC.reflectivity()));
-  //   Brain.Screen.newLine();
-  //   // A brief delay to allow text to be printed without distortion or tearing
-  //   wait(0.05, seconds);
-  // wait(5, msec);
-  // }
-
-// while (true) {
-//   Brain.Screen.clearScreen();
-//   Brain.Screen.setCursor(1, 1);
-//   Brain.Screen.print("Line status: ");
-//   Brain.Screen.print(line_tracker_status());
-//   wait (50, msec);
-// }
-
-  // drive straight line until we lose line
-
-  double front_left  = 0; double back_left   = 0; double front_right = 0; double back_right  = 0;
-  InertialSensor.setRotation(0, degrees); // reset heading to 0
-  bool giveUp = false;
-  bool lookingForLine = false;
-
-  while (!giveUp) {
-
-    // figure out what to do
-
-    int lineStatus = line_tracker_status(LINETHRESHOLD);
-    int axis1 = 0; int axis3 = 0; int axis4 = 0;
-    if (lookingForLine && (lineStatus == LINECENTERED || lineStatus == LINEALLON)) { // found line again
-      InertialSensor.setRotation(0, degrees); // reset heading to 0
-      lookingForLine = false;
-    } else if (lineStatus == LINECENTERED || lineStatus == LINEALLON) {
-      // basicaly go straight, but correct for gyro
-      stabilize_axes_by_gyro (axis1);
-      axis3 = LINESPEED; axis4 = 0;
-    } else if (lineStatus == LINEOFFTOLEFT || lineStatus == LINETHICKOFFTOLEFT) {
-      // veer right to get centered again
-      axis1 = 0; axis3 = LINESPEED; axis4 = LINECORRECT;
-    } else if (lineStatus == LINEOFFTORIGHT || lineStatus == LINETHICKOFFTORIGHT) {
-      // veer left to get centered again
-      axis1 = 0; axis3 = LINESPEED; axis4 = -LINECORRECT;
-    } else if (lookingForLine) {
-      if (InertialSensor.rotation(degrees) >= 300) { // swiveled for too long
-        giveUp = true;
-      } else {
-        axis1 = GYROCORRECT; axis3 = 0; axis4 = LINESPEED / 2; // swivel for a while until find line
-      }
-    } else if (lineStatus == LINELOST) {
-      // wait a little and maybe line will reappear
-      wait (0.1, sec);
-      if (line_tracker_status(LINETHRESHOLD) == LINELOST) { // still lost, try once to find it again by swiveling
-        InertialSensor.setRotation(0, degrees); // will look for line until swiveled too far
-        lookingForLine = true;
-      }
-    }
-
-    // do it
-    basic_motor_calculation (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
-    normalize_motor_power (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
-    apply_motor_power (front_left, back_left, front_right, back_right);
-
-  } // while not give up
-
-  // give up
-  apply_motor_power (0, 0, 0, 0);
-
-  while (true) {
-    Brain.Screen.clearScreen();
-    Brain.Screen.setCursor(1, 1);
-    Brain.Screen.print("Line status: ");
-    Brain.Screen.print(line_tracker_status(LINETHRESHOLD));
-    Brain.Screen.newLine();
-    Brain.Screen.print("rotation: ");
-    Brain.Screen.print(InertialSensor.rotation(degrees));
-    wait (50, msec);
-  }
-
-}
 
 int main() {
   // Set up callbacks for autonomous and driver control periods.

@@ -18,6 +18,9 @@ inertial InertialSensor = inertial(PORT16);
 line LineTrackerA = line(Brain.ThreeWirePort.A);
 line LineTrackerB = line(Brain.ThreeWirePort.B);
 line LineTrackerC = line(Brain.ThreeWirePort.C);
+line LineTrackerD = line(Brain.ThreeWirePort.D);
+line LineTrackerE = line(Brain.ThreeWirePort.E);
+line LineTrackerF = line(Brain.ThreeWirePort.F);
 motor MotorClaw = motor(PORT5, ratio18_1, false);
 motor MotorShoulder = motor(PORT6, ratio18_1, false);
 
