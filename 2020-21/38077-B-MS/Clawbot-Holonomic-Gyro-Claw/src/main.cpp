@@ -158,16 +158,16 @@ void usercontrol() {
 
     if (Controller1.ButtonUp.pressing()) {
       axis3 = 50; axis4 = 0; axis1 = 0;
-      stabilize_axes_by_gyro(axis1);
+      stabilize_axes_by_gyro(axis1, 0);
     } else if (Controller1.ButtonDown.pressing()) {
       axis3 = -50; axis4 = 0; axis1 = 0;
-      stabilize_axes_by_gyro(axis1);
+      stabilize_axes_by_gyro(axis1, 0);
     } else if (Controller1.ButtonLeft.pressing()) {
       axis3 = 0; axis4 = -50; axis1 = 0;
-      stabilize_axes_by_gyro(axis1);
+      stabilize_axes_by_gyro(axis1, 0);
     } else if (Controller1.ButtonRight.pressing()) {
       axis3 = 0; axis4 = 50; axis1 = 0;
-      stabilize_axes_by_gyro(axis1);
+      stabilize_axes_by_gyro(axis1, 0);
     } else {
       // get the axes values
       axis1 = Controller1.Axis1.position(pct) * SPINSCALE;

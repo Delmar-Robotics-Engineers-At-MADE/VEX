@@ -24,6 +24,32 @@ int line_tracker_status (int threshold, line trackerA, line trackerB, line track
   return result;
 }
 
+void basic_line_follow (int &axis1, int &axis3, int &axis4, int threshold, 
+                        line trackerA, line trackerB, line trackerC, 
+                        int speed, int correctSpeed, double angle) {
+
+        int lineStatus = line_tracker_status(threshold, trackerA, trackerB, trackerC);
+        if (lineStatus == LINECENTERED || lineStatus == LINEALLON) {
+          stabilize_axes_by_gyro (axis1, angle);
+          axis3 = speed; axis4 = 0;
+        } else if (lineStatus == LINEOFFTOLEFT || lineStatus == LINETHICKOFFTOLEFT) {
+          // veer right to get centered again
+          axis1 = 0; axis3 = speed; axis4 = correctSpeed;
+        } else if (lineStatus == LINEOFFTORIGHT || lineStatus == LINETHICKOFFTORIGHT) {
+          // veer left to get centered again
+          axis1 = 0; axis3 = speed; axis4 = -correctSpeed;
+        } else if (lineStatus == LINELOST) {
+          // wait a little and maybe line will reappear
+          wait (0.1, sec);
+          if (line_tracker_status(threshold, trackerA, trackerB, trackerC) == LINELOST) { 
+            axis1 = 0; axis3 = 0; axis4 = 0;
+          }
+        }
+        // make field-relative so robot can follow line sideways
+        adjust_axes_for_heading (axis3, axis4);
+}
+
+
 // ******************************************************* Autonomous *******************************************************************
 
 void autonomous(void) {
@@ -84,7 +110,7 @@ void autonomous(void) {
           lookingForLine = false;
         } else if (lineStatus == LINECENTERED || lineStatus == LINEALLON) {
           // basicaly go straight, but correct for gyro
-          stabilize_axes_by_gyro (axis1);
+          stabilize_axes_by_gyro (axis1, 0);
           axis3 = LINESPEED; axis4 = 0;
         } else if (lineStatus == LINEOFFTOLEFT || lineStatus == LINETHICKOFFTOLEFT) {
           // veer right to get centered again
@@ -145,7 +171,7 @@ void autonomous(void) {
         int lineStatus = LINELOST;
         while (lineStatus != LINEOFFTOLEFT) {
           // basicaly go straight, but correct for gyro
-          stabilize_axes_by_gyro (axis1);
+          stabilize_axes_by_gyro (axis1, 0);
           axis3 = -LINESPEED/2; axis4 = 0;
           basic_motor_calculation (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
           normalize_motor_power (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
@@ -159,8 +185,47 @@ void autonomous(void) {
         // raise arm
         MotorShoulder.setVelocity(75, vex::velocityUnits::pct);
         MotorShoulder.startRotateTo(840,vex::rotationUnits::deg);
+        wait (1000, msec);
 
-        wait (50000, msec);
+        // move down line to next goal, when front trackers see line
+        InertialSensor.setHeading(275, degrees);  // drive down line sideways
+        InertialSensor.setRotation(90, degrees);  // drive down line sideways
+        lineStatus = LINELOST;
+        while (lineStatus == LINELOST) {
+          basic_line_follow (axis1, axis3, axis4, LINETHRESHOLD, 
+                        LineTrackerD, LineTrackerE, LineTrackerF, 
+                        -LINESPEED, LINECORRECT, 90);
+          basic_motor_calculation (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
+          normalize_motor_power (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
+          apply_motor_power (front_left, back_left, front_right, back_right);
+          lineStatus = line_tracker_status(LINETHRESHOLD, LineTrackerA, LineTrackerB, LineTrackerC);
+          // Brain.Screen.setCursor(2, 1);
+          // Brain.Screen.clearLine();
+          // Brain.Screen.print(axis1);         
+          // Brain.Screen.print(" ");         
+          // Brain.Screen.print(axis3);         
+          // Brain.Screen.print(" ");         
+          // Brain.Screen.print(axis4);         
+          // Brain.Screen.setCursor(3, 1);
+          // Brain.Screen.clearLine();
+          // Brain.Screen.print(InertialSensor.heading(degrees));         
+          // Brain.Screen.setCursor(4, 1);
+          // Brain.Screen.clearLine();
+          // Brain.Screen.print(lineStatus);         
+        }
+        apply_motor_power (0, 0, 0, 0);
+        wait (1000, msec);
+
+        // scoot forward a little and score ball
+        int targetRotationDegrees = 150;
+        front_left_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
+        front_right_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
+        back_left_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
+        back_right_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
+        while (front_left_motor.isSpinning()) {task::sleep(100);}
+        MotorClaw.startRotateTo(-400,vex::rotationUnits::deg);
+
+
         }
         break;      
 

@@ -1,6 +1,6 @@
 #define LINESPEED 30
 #define LINECORRECT 10
-#define LINETHRESHOLD 8
+#define LINETHRESHOLD 9
 
 #define LINELOST 0
 #define LINECENTERED 1

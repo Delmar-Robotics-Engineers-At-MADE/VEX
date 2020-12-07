@@ -67,9 +67,10 @@ void basic_motor_calculation (int axis1, int axis3, int axis4, double &front_lef
     back_right  = (double)(axis3 + axis4);
 }
 
-void stabilize_axes_by_gyro (int &axis1) {
+void stabilize_axes_by_gyro (int &axis1, double targetRotation) {
       double rotation = InertialSensor.rotation(degrees);
-      if (rotation < -GYROTOLERANCE) {axis1 = GYROCORRECT;}
-      else if (rotation > GYROTOLERANCE) {axis1 = -GYROCORRECT;}
+      double error = rotation - targetRotation;
+      if (error < -GYROTOLERANCE) {axis1 = GYROCORRECT;}
+      else if (error > GYROTOLERANCE) {axis1 = -GYROCORRECT;}
       else axis1 = 0;
 }
