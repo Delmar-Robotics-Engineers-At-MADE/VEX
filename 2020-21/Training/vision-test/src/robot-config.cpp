@@ -25,6 +25,8 @@ vision Vision8 =
            Vision8__SIG_4, Vision8__SIG_5, Vision8__SIG_6, Vision8__SIG_7);
 /*vex-vision-config:end*/
 
+motor MotorShoulder = motor(PORT6, ratio18_1, false);
+
 // VEXcode generated functions
 
 /**

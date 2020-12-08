@@ -19,14 +19,14 @@ void DrawButtons(){
     Brain.Screen.drawRectangle(129, 125, 105, 105, color::red);
     Brain.Screen.drawRectangle(246, 125, 105, 105, color::red);
     Brain.Screen.drawRectangle(363, 125, 105, 105, color::red);
-    Brain.Screen.printAt(38, 62, "L 2");
-    Brain.Screen.printAt(155, 62, "L 3"); // + 117
-    Brain.Screen.printAt(272, 62, "R 2");
-    Brain.Screen.printAt(389, 62, "R 3");
-    Brain.Screen.printAt(38, 177, "L 2");
-    Brain.Screen.printAt(155, 177, "L 3");
-    Brain.Screen.printAt(272, 177, "R 2");
-    Brain.Screen.printAt(389, 177, "R 3");
+    Brain.Screen.printAt(38, 62, "L 1");
+    Brain.Screen.printAt(155, 62, "L 2"); // + 117
+    Brain.Screen.printAt(272, 62, "R 1");
+    Brain.Screen.printAt(389, 62, "R 2");
+    Brain.Screen.printAt(38, 177, "L 1");
+    Brain.Screen.printAt(155, 177, "L 2");
+    Brain.Screen.printAt(272, 177, "R 1");
+    Brain.Screen.printAt(389, 177, "R 2");
 }
 
 // Draws a circle around the place on the screen that is touched
@@ -62,36 +62,36 @@ int AutonLocation(){
             if (Brain.Screen.yPosition() >= 10 && Brain.Screen.yPosition() <= 115){
                 // First blue button
                 if (Brain.Screen.xPosition() >= 12 && Brain.Screen.xPosition() <= 117){
-                    result = AUTON_BLUE_LEFT_2_BALLS;
+                    result = AUTON_BLUE_LEFT_1_BALL;
                 }
                 // Second blue button
                 else if (Brain.Screen.xPosition() >= 129 && Brain.Screen.xPosition() <= 234){ // + 12, + 105
-                    result = AUTON_BLUE_LEFT_3_BALLS;
+                    result = AUTON_BLUE_LEFT_2_BALLS;
                 }
                 // third blue button
                 else if (Brain.Screen.xPosition() >= 246 && Brain.Screen.xPosition() <= 351){
-                    result = AUTON_BLUE_RIGHT_2_BALLS;
+                    result = AUTON_BLUE_RIGHT_1_BALL;
                 }
                 // fourth blue button
                 else if (Brain.Screen.xPosition() >= 363 && Brain.Screen.xPosition() <= 468){
-                    result = AUTON_BLUE_RIGHT_3_BALLS;
+                    result = AUTON_BLUE_RIGHT_2_BALLS;
                 }
             } else if (Brain.Screen.yPosition() >= 115 && Brain.Screen.yPosition() <= 230){
                 // First red button
                 if (Brain.Screen.xPosition() >= 12 && Brain.Screen.xPosition() <= 117){
-                    result = AUTON_RED_LEFT_2_BALLS;
+                    result = AUTON_RED_LEFT_1_BALL;
                 }
                 // Second red button
                 else if (Brain.Screen.xPosition() >= 129 && Brain.Screen.xPosition() <= 234){
-                    result = AUTON_RED_LEFT_3_BALLS;
+                    result = AUTON_RED_LEFT_2_BALLS;
                 }
                 // third red button
                 else if (Brain.Screen.xPosition() >= 246 && Brain.Screen.xPosition() <= 351){
-                    result = AUTON_RED_RIGHT_2_BALLS;
+                    result = AUTON_RED_RIGHT_1_BALL;
                 }
                 // fourth red button
                 else if (Brain.Screen.xPosition() >= 363 && Brain.Screen.xPosition() <= 468){
-                    result = AUTON_RED_RIGHT_3_BALLS;
+                    result = AUTON_RED_RIGHT_2_BALLS;
                 }
             }
 

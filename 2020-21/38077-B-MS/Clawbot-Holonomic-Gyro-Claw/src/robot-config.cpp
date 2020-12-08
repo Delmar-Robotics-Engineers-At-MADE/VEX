@@ -24,6 +24,23 @@ line LineTrackerF = line(Brain.ThreeWirePort.F);
 motor MotorClaw = motor(PORT5, ratio18_1, false);
 motor MotorShoulder = motor(PORT6, ratio18_1, false);
 
+/*vex-vision-config:begin*/
+signature Vision8__CHGUP_BALL_BLUE = 
+  signature(1,-3347,-2737,-3042,9863,12407,11134,3.0,0);
+
+signature Vision8__CHGUP_BALL_RED =
+  signature(2,4949,6023,5486,-1,1401,700,2.5,0);
+
+signature Vision8__SIG_3 = signature(4, 0, 0, 0, 0, 0, 0, 2.5, 0);
+signature Vision8__SIG_4 = signature(4, 0, 0, 0, 0, 0, 0, 2.5, 0);
+signature Vision8__SIG_5 = signature(5, 0, 0, 0, 0, 0, 0, 2.5, 0);
+signature Vision8__SIG_6 = signature(6, 0, 0, 0, 0, 0, 0, 2.5, 0);
+signature Vision8__SIG_7 = signature(7, 0, 0, 0, 0, 0, 0, 2.5, 0);
+vision Vision8 =
+    vision(PORT8, 50, Vision8__CHGUP_BALL_BLUE, Vision8__CHGUP_BALL_RED, Vision8__SIG_3,
+           Vision8__SIG_4, Vision8__SIG_5, Vision8__SIG_6, Vision8__SIG_7);
+/*vex-vision-config:end*/
+
 // VEXcode generated functions
 // define variable for remote controller enable/disable
 bool RemoteControlCodeEnabled = true;

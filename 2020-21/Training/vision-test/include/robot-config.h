@@ -14,6 +14,8 @@ extern signature Vision8__SIG_6;
 extern signature Vision8__SIG_7;
 extern vision Vision8;
 
+extern motor MotorShoulder;
+
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
  *

@@ -32,12 +32,12 @@ void hasBlueCallback() {
   if (Vision8.objectCount > 0) {
     Brain.Screen.print("Blue Object Found");
     Brain.Screen.setCursor(2, 1);
+    Brain.Screen.clearLine();
     Brain.Screen.print(Vision8.largestObject.centerX);
     Brain.Screen.print(" ");
     Brain.Screen.print(Vision8.largestObject.centerY);
     Brain.Screen.print(" ");
     Brain.Screen.print(Vision8.largestObject.width * Vision8.largestObject.height);
-    Brain.Screen.print("          ");
   } else {
     Brain.Screen.print("No Blue Object");
   }
@@ -59,6 +59,10 @@ void hasRedCallback() {
 int main() {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
+
+  MotorShoulder.setStopping(vex::brakeType::hold);
+  MotorShoulder.setVelocity(20, vex::velocityUnits::pct);
+  MotorShoulder.startRotateTo(40,vex::rotationUnits::deg);
 
   checkBlue(hasBlueCallback);
   checkRed(hasRedCallback);
