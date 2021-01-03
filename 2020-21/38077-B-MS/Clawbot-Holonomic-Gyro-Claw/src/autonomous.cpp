@@ -49,6 +49,12 @@ void basic_line_follow (int &axis1, int &axis3, int &axis4, int threshold,
         adjust_axes_for_heading (axis3, axis4);
 }
 
+void move_claw_off_wheels(void) {
+  // move claw off wheels
+  MotorShoulder.setVelocity(20, vex::velocityUnits::pct);
+  MotorShoulder.startRotateTo(110,vex::rotationUnits::deg);
+  while (MotorShoulder.isSpinning()) {task::sleep(100);}
+}
 
 // ******************************************************* Autonomous *******************************************************************
 
@@ -91,7 +97,12 @@ void autonomous(void) {
   int axis1 = 0; int axis3 = 0; int axis4 = 0;
 
   switch (AutonChoice) {
-    case AUTON_DO_NOTHING: break;
+    case AUTON_DO_NOTHING: 
+      Brain.Screen.clearScreen();
+      Brain.Screen.setCursor(1, 1);
+      Brain.Screen.print("Do-nothing auto");
+      move_claw_off_wheels();
+      break;
 
     case AUTON_FOREVER_LINE_FOLLOW:
       {
@@ -163,7 +174,11 @@ void autonomous(void) {
         Brain.Screen.print("Variant not implemented");
 
         {
+        move_claw_off_wheels();
 
+        // grab ball for travelling
+        MotorClaw.startRotateTo(CLAW_CLOSED,vex::rotationUnits::deg);
+        while (MotorClaw.isSpinning()) {task::sleep(100);}
 
         }
 
@@ -176,13 +191,18 @@ void autonomous(void) {
         Brain.Screen.setCursor(1, 1);
         Brain.Screen.print("Running Blue Left 2 balls");
 
-        // collect ball for travelling
-        MotorClaw.startRotateTo(150,vex::rotationUnits::deg);
+        // move claw off wheels
+        MotorShoulder.setVelocity(20, vex::velocityUnits::pct);
+        MotorShoulder.startRotateTo(110,vex::rotationUnits::deg);
+        while (MotorShoulder.isSpinning()) {task::sleep(100);}
+
+        // grab ball for travelling
+        MotorClaw.startRotateTo(CLAW_CLOSED,vex::rotationUnits::deg);
+        while (MotorClaw.isSpinning()) {task::sleep(100);}
 
         // raise arm a little for travelling
-        MotorShoulder.setVelocity(20, vex::velocityUnits::pct);
-        MotorShoulder.startRotateTo(80,vex::rotationUnits::deg);
-        while (MotorShoulder.isSpinning()) {task::sleep(100);}
+        MotorShoulder.setVelocity(SHOULDER_SPEED_UP, vex::velocityUnits::pct);
+        MotorShoulder.startRotateTo(SHOULDER_POS_MID,vex::rotationUnits::deg);
 
         // reverse to line, until middle side sensor sees it
         int lineStatus = LINELOST;
@@ -200,8 +220,8 @@ void autonomous(void) {
         apply_motor_power (0, 0, 0, 0);
 
         // raise arm
-        MotorShoulder.setVelocity(75, vex::velocityUnits::pct);
-        MotorShoulder.startRotateTo(840,vex::rotationUnits::deg);
+        MotorShoulder.setVelocity(SHOULDER_SPEED_UP, vex::velocityUnits::pct);
+        MotorShoulder.startRotateTo(SHOULDER_POS_TOP,vex::rotationUnits::deg);
 
         // move down line to next goal, when front trackers see line
         InertialSensor.setHeading(275, degrees);  // drive down line sideways
@@ -238,7 +258,7 @@ void autonomous(void) {
         back_left_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
         back_right_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
         while (front_left_motor.isSpinning()) {task::sleep(100);}
-        MotorClaw.startRotateTo(-400,vex::rotationUnits::deg);
+        MotorClaw.startRotateTo(CLAW_OPEN,vex::rotationUnits::deg);
         wait (1000, msec);
 
         // reverse to line, until middle side sensor sees it
@@ -270,8 +290,8 @@ void autonomous(void) {
         apply_motor_power(0, 0, 0, 0);
 
         // lower arm
-        MotorShoulder.setVelocity(20, vex::velocityUnits::pct);
-        MotorShoulder.startRotateTo(80,vex::rotationUnits::deg);
+        MotorShoulder.setVelocity(SHOULDER_SPEED_DOWN, vex::velocityUnits::pct);
+        MotorShoulder.startRotateTo(SHOULDER_POS_BOTTOM,vex::rotationUnits::deg);
         while (MotorShoulder.isSpinning()) {task::sleep(100);}
 
         // drive forward until ball is off to the left
@@ -279,10 +299,10 @@ void autonomous(void) {
         InertialSensor.resetHeading();
         InertialSensor.resetRotation();
         front_left_motor.resetPosition();
-        bool ballPositioned = false; int abort = false;
+        bool ballPositioned = false; bool abort = false;
         int abortDistance = 1600;
         while (!ballPositioned && !abort) {
-          abort = front_left_motor.position(rotationUnits::deg) >= abortDistance;
+          abort = (front_left_motor.position(rotationUnits::deg) >= abortDistance);
           basic_line_follow (axis1, axis3, axis4, LINETHRESHOLD, 
                   LineTrackerA, LineTrackerB, LineTrackerC, 
                   LINESPEED, LINECORRECT, 0);
@@ -296,7 +316,7 @@ void autonomous(void) {
           Brain.Screen.print(front_left_motor.position(rotationUnits::deg));
         }
         apply_motor_power(0, 0, 0, 0);
-        if (abort) {while(true){Brain.Screen.setCursor(2, 1); Brain.Screen.setPenColor(color::red); Brain.Screen.print("aborted due to distance");}}
+        if (abort) {while(true){Brain.Screen.setCursor(2, 1); Brain.Screen.setPenColor(color::red); Brain.Screen.print("aborted due to distance 1");}}
 
         // rotate toward ball
         while(InertialSensor.rotation(degrees) >= -25) {
@@ -312,8 +332,9 @@ void autonomous(void) {
         InertialSensor.resetRotation();
         front_left_motor.resetPosition();
         ballPositioned = false; abort = false;
+        abortDistance = 1600;
         while (!ballPositioned && !abort) {
-          abort = front_left_motor.position(rotationUnits::deg) < 200;
+          abort = front_left_motor.position(rotationUnits::deg) >= abortDistance;
           basic_line_follow (axis1, axis3, axis4, LINETHRESHOLD, 
                   LineTrackerA, LineTrackerB, LineTrackerC, 
                   LINESPEED, LINECORRECT, 0);
@@ -324,7 +345,7 @@ void autonomous(void) {
           ballPositioned = (Vision8.objectCount > 0 && Vision8.largestObject.centerY < 215);
         }
         apply_motor_power(0, 0, 0, 0);
-        if (abort) {while(true){Brain.Screen.setCursor(2, 1); Brain.Screen.setPenColor(color::red); Brain.Screen.print("aborted due to distance");}}
+        if (abort) {while(true){Brain.Screen.setCursor(2, 1); Brain.Screen.setPenColor(color::red); Brain.Screen.print("aborted due to distance 2");}}
 
         // scoot forward a little more and collect ball
         targetRotationDegrees = 200;
@@ -333,7 +354,7 @@ void autonomous(void) {
         back_left_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
         back_right_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
         while (front_left_motor.isSpinning()) {task::sleep(100);}
-        MotorClaw.startRotateTo(150,vex::rotationUnits::deg);
+        MotorClaw.startRotateTo(CLAW_CLOSED,vex::rotationUnits::deg);
         while (MotorClaw.isSpinning()) {task::sleep(100);}
 
         // back up; raise arm
@@ -343,8 +364,8 @@ void autonomous(void) {
         back_left_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
         back_right_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
         while (front_left_motor.isSpinning()) {task::sleep(100);}
-        MotorShoulder.setVelocity(75, vex::velocityUnits::pct);
-        MotorShoulder.startRotateTo(840,vex::rotationUnits::deg);
+        MotorShoulder.setVelocity(SHOULDER_SPEED_UP, vex::velocityUnits::pct);
+        MotorShoulder.startRotateTo(SHOULDER_POS_TOP,vex::rotationUnits::deg);
         while (MotorShoulder.isSpinning()) {task::sleep(100);}
 
         // scoot forward; score ball
@@ -354,7 +375,7 @@ void autonomous(void) {
         back_left_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
         back_right_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
         while (front_left_motor.isSpinning()) {task::sleep(100);}
-        MotorClaw.startRotateTo(5,vex::rotationUnits::deg);
+        MotorClaw.startRotateTo(CLAW_OPEN,vex::rotationUnits::deg);
         while (MotorClaw.isSpinning()) {task::sleep(100);}
 
 

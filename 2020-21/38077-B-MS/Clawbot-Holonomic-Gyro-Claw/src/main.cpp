@@ -86,8 +86,9 @@ void pre_auton(void) {
   if (Competition.isCompetitionSwitch() || Competition.isFieldControl()) {
     // on competition switch, run auton selection process
     DrawButtons();
-    while (!Brain.Screen.pressing()) task::sleep(50);
-    AutonChoice = AutonLocation();
+    while (!Brain.Screen.pressing() && !Competition.isEnabled()) { task::sleep(50); } // exit loop when press or auto is enabled
+    if (Brain.Screen.pressing()) { AutonChoice = AutonLocation(); }
+    else AutonChoice = AUTON_DO_NOTHING;
     // while (Brain.Screen.pressing()) task::sleep(50);
     HiliteTouch();
   }
@@ -116,40 +117,50 @@ void usercontrol() {
     // Arm Control
     if((Controller1.ButtonR1.pressing() && Controller1.ButtonR2.pressing())
     || (Controller2.ButtonR1.pressing() && Controller2.ButtonR2.pressing())) { // middle position
-          MotorShoulder.setVelocity(50, vex::velocityUnits::pct);
-          MotorShoulder.startRotateTo(300,vex::rotationUnits::deg);
+          MotorShoulder.setVelocity(SHOULDER_SPEED_UP, vex::velocityUnits::pct);
+          MotorShoulder.startRotateTo(SHOULDER_POS_MID,vex::rotationUnits::deg);
     }
     else if(Controller1.ButtonR1.pressing()
          || Controller2.ButtonR1.pressing()) { // highest position
-          MotorShoulder.setVelocity(75, vex::velocityUnits::pct);
-          MotorShoulder.startRotateTo(840,vex::rotationUnits::deg);
+          MotorShoulder.setVelocity(SHOULDER_SPEED_UP, vex::velocityUnits::pct);
+          MotorShoulder.startRotateTo(SHOULDER_POS_TOP,vex::rotationUnits::deg);
     }
     else if(Controller1.ButtonR2.pressing()
          || Controller2.ButtonR2.pressing()) { // lowest position
-          MotorShoulder.setVelocity(20, vex::velocityUnits::pct);
-          MotorShoulder.startRotateTo(0,vex::rotationUnits::deg);
+          MotorShoulder.setVelocity(SHOULDER_SPEED_DOWN, vex::velocityUnits::pct);
+          MotorShoulder.startRotateTo(SHOULDER_POS_BOTTOM,vex::rotationUnits::deg);
     }
     else { // stop
         MotorShoulder.stop();
     }
 
+    Brain.Screen.setCursor(1, 1);
+    Brain.Screen.print("Shoulder: ");
+    Brain.Screen.print(MotorShoulder.position(rotationUnits::deg));
+    Brain.Screen.newLine();
+
     //Claw Control
     if((Controller1.ButtonL1.pressing() && Controller1.ButtonL2.pressing()) 
     || (Controller2.ButtonL1.pressing() && Controller2.ButtonL2.pressing())) { // middle position
-          MotorClaw.startRotateTo(150,vex::rotationUnits::deg);
+          MotorClaw.startRotateTo(CLAW_MID,vex::rotationUnits::deg);
     }
     else if(Controller1.ButtonL1.pressing()
          || Controller2.ButtonL1.pressing()) { // closed position
-          MotorClaw.startRotateTo(250,vex::rotationUnits::deg);
+          MotorClaw.startRotateTo(CLAW_CLOSED,vex::rotationUnits::deg);
     }
     else if(Controller1.ButtonL2.pressing()
          || Controller2.ButtonL2.pressing()) { // widest position
-          MotorClaw.startRotateTo(0,vex::rotationUnits::deg);
+          MotorClaw.startRotateTo(CLAW_OPEN,vex::rotationUnits::deg);
     }
     else { // stop
         MotorClaw.stop();
     }
     
+    Brain.Screen.setCursor(2, 1);
+    Brain.Screen.print("Claw: ");
+    Brain.Screen.print(MotorClaw.position(rotationUnits::deg));
+    Brain.Screen.newLine();
+
     // holonomic control...
 
     int axis1 = 0;

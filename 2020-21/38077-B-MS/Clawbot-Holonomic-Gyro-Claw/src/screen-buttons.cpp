@@ -2,7 +2,7 @@
 #include "screen-buttons.h"
 
 // which autonomous variation to run
-int AutonChoice = 0;
+int AutonChoice = AUTON_DO_NOTHING;
 
 // reference:  https://www.vexforum.com/t/auton-selection-on-v5-brain/51196
 // reference: https://gist.github.com/Jerrylum/cf4d417e3dbce0b7722f06b1311fae12
@@ -57,7 +57,7 @@ int AutonLocation(){
     //         }
     //         task::sleep(500);
 
-    int result = 0;
+    int result = AUTON_DO_NOTHING;
     
             if (Brain.Screen.yPosition() >= 10 && Brain.Screen.yPosition() <= 115){
                 // First blue button
