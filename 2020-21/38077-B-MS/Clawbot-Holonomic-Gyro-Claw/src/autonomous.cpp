@@ -53,22 +53,26 @@ void basic_line_follow (int &axis1, int &axis3, int &axis4, int threshold,
 }
 
 void Autonomous::move_claw_off_wheels (void) {
+  Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("move_claw_off_wheels");
   MotorShoulder.setVelocity(20, vex::velocityUnits::pct);
   MotorShoulder.startRotateTo(110,vex::rotationUnits::deg);
   while (MotorShoulder.isSpinning()) {task::sleep(100);}
 }
 
 void Autonomous::grab_ball_for_travelling (void) {
-        MotorClaw.startRotateTo(CLAW_CLOSED,vex::rotationUnits::deg);
-        while (MotorClaw.isSpinning()) {task::sleep(100);}
+  Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("grab_ball_for_travelling");
+  MotorClaw.startRotateTo(CLAW_CLOSED,vex::rotationUnits::deg);
+  while (MotorClaw.isSpinning()) {task::sleep(100);}
 }
 
 void Autonomous::raise_arm_a_little_for_travelling (void) {
-        MotorShoulder.setVelocity(SHOULDER_SPEED_UP, vex::velocityUnits::pct);
-        MotorShoulder.startRotateTo(SHOULDER_POS_MID,vex::rotationUnits::deg);
+  Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("raise_arm_a_little_for_travelling");
+  MotorShoulder.setVelocity(SHOULDER_SPEED_UP, vex::velocityUnits::pct);
+  MotorShoulder.startRotateTo(SHOULDER_POS_MID,vex::rotationUnits::deg);
 }
 
 void Autonomous::reverse_to_line_until_middle_side_sensor_sees_it (void) {
+  Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("reverse_to_line_until_middle_side_sensor_sees_it");
         int lineStatus = LINELOST;
         while (lineStatus != LINEOFFTOLEFT) {
           // basicaly go straight, but correct for gyro
@@ -85,11 +89,13 @@ void Autonomous::reverse_to_line_until_middle_side_sensor_sees_it (void) {
 }
 
 void Autonomous::raise_arm_to_top_for_travelling (void) {
+  Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("raise_arm_to_top_for_travelling");
         MotorShoulder.setVelocity(SHOULDER_SPEED_UP, vex::velocityUnits::pct);
         MotorShoulder.startRotateTo(SHOULDER_POS_TOP,vex::rotationUnits::deg);
 }
 
 void Autonomous::move_down_line_to_next_goal_when_front_trackers_see_line (void) {
+  Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("move_down_line_to_next_goal_when_front_trackers_see_line");
         InertialSensor.setHeading(275, degrees);  // drive down line sideways
         InertialSensor.setRotation(90, degrees);  // drive down line sideways
         int lineStatus = LINELOST;
@@ -106,6 +112,7 @@ void Autonomous::move_down_line_to_next_goal_when_front_trackers_see_line (void)
 }
 
 void Autonomous::scoot_forward_a_little_and_score_ball  (void) {
+  Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("move_claw_off_wheels");
         int targetRotationDegrees = 150;
         front_left_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
         front_right_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
@@ -117,6 +124,7 @@ void Autonomous::scoot_forward_a_little_and_score_ball  (void) {
 }
 
 void Autonomous::swivel_back_to_line_until_middle_side_sensor_sees_it (void) {
+  Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("swivel_back_to_line_until_middle_side_sensor_sees_it");
         InertialSensor.resetHeading();
         InertialSensor.resetRotation();
         int lineStatus = LINELOST;
@@ -135,6 +143,7 @@ void Autonomous::swivel_back_to_line_until_middle_side_sensor_sees_it (void) {
 }
 
 void Autonomous::rotate_right_until_front_sensors_are_on_line (void) {
+  Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("rotate_right_until_front_sensors_are_on_line");
         int lineStatus = LINELOST;
         while (lineStatus == LINELOST) {
           axis1 = GYROCORRECT; axis3 = 0; axis4 = 0;
@@ -147,12 +156,14 @@ void Autonomous::rotate_right_until_front_sensors_are_on_line (void) {
 }
 
 void Autonomous::lower_arm (void) {
+        Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("lower_arm");
         MotorShoulder.setVelocity(SHOULDER_SPEED_DOWN, vex::velocityUnits::pct);
         MotorShoulder.startRotateTo(SHOULDER_POS_BOTTOM,vex::rotationUnits::deg);
         while (MotorShoulder.isSpinning()) {task::sleep(100);}
 }
 
 void Autonomous::drive_forward_until_ball_is_off_to_the_left (void) {
+        Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("drive_forward_until_ball_is_off_to_the_left");
         // abort if we drive too far
         InertialSensor.resetHeading();
         InertialSensor.resetRotation();
@@ -178,6 +189,7 @@ void Autonomous::drive_forward_until_ball_is_off_to_the_left (void) {
 }
 
 void Autonomous::rotate_toward_ball (void) {
+        Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("rotate_toward_ball");
         while(InertialSensor.rotation(degrees) >= -25) {
           axis1 = -GYROCORRECT; axis3 = 0; axis4 = 0;
           basic_motor_calculation (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
@@ -188,6 +200,7 @@ void Autonomous::rotate_toward_ball (void) {
 }
 
 void Autonomous::drive_forward_until_ball_is_in_clutches (void) {
+        Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("drive_forward_until_ball_is_in_clutches");
         InertialSensor.resetHeading();
         InertialSensor.resetRotation();
         front_left_motor.resetPosition();
@@ -209,17 +222,19 @@ void Autonomous::drive_forward_until_ball_is_in_clutches (void) {
 }
 
 void Autonomous::scoot_forward_a_little_more_and_collect_ball (void) {
+        Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("scoot_forward_a_little_more_and_collect_ball");
         int targetRotationDegrees = 240;
         front_left_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
         front_right_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
         back_left_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
         back_right_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
-        while (front_left_motor.isSpinning()) {task::sleep(100);}
+        while (front_left_motor.isSpinning()) {task::sleep(140);}
         MotorClaw.startRotateTo(CLAW_CLOSED,vex::rotationUnits::deg);
         while (MotorClaw.isSpinning()) {task::sleep(100);}
 }
 
 void Autonomous::back_up_and_raise_arm(void) {
+        Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("back_up_and_raise_arm");
         int targetRotationDegrees = -230;
         front_left_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
         front_right_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
@@ -232,6 +247,7 @@ void Autonomous::back_up_and_raise_arm(void) {
 }
 
 void Autonomous::scoot_forward_score_ball (void) {
+        Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("scoot_forward_score_ball");
         int targetRotationDegrees = 410;
         front_left_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
         front_right_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
