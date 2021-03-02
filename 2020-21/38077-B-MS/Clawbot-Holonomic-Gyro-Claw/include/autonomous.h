@@ -13,6 +13,9 @@
 // flag so pre_auton runs before tele-op when off competition switch
 extern bool pre_auton_done;
 
+enum LeftOrRight {kLeft, kRight};
+enum BlueOrRed {kBlue, kRed};
+
 class Autonomous {
 private:
   int axis1, axis3, axis4; 
@@ -27,11 +30,11 @@ public:
   void raise_arm_to_top_for_travelling (void);
   void move_down_line_to_next_goal_when_front_trackers_see_line (void);
   void scoot_forward_a_little_and_score_ball (void);
-  void swivel_back_to_line_until_middle_side_sensor_sees_it (void);
-  void rotate_right_until_front_sensors_are_on_line (void);
+  void swivel_back_to_line_until_middle_side_sensor_sees_it (LeftOrRight swivelDir);
+  void rotate_until_front_sensors_are_on_line (LeftOrRight rotateDir);
   void lower_arm (void);
-  void drive_forward_until_ball_is_off_to_the_left (void);
-  void rotate_toward_ball (void);
+  void drive_forward_until_ball_is_off_to_the (LeftOrRight offToThe, BlueOrRed ballColor);
+  void rotate_toward_ball (LeftOrRight rotateDir);
   void drive_forward_until_ball_is_in_clutches (void);
   void scoot_forward_a_little_more_and_collect_ball (void);
   void back_up_and_raise_arm(void);

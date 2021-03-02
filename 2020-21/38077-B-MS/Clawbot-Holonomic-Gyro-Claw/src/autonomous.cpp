@@ -72,7 +72,7 @@ void Autonomous::raise_arm_a_little_for_travelling (void) {
 }
 
 void Autonomous::reverse_to_line_until_middle_side_sensor_sees_it (void) {
-  Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("reverse_to_line_until_middle_side_sensor_sees_it");
+        Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("reverse_to_line_until_middle_side_sensor_sees_it");
         int lineStatus = LINELOST;
         while (lineStatus != LINEOFFTOLEFT) {
           // basicaly go straight, but correct for gyro
@@ -89,13 +89,13 @@ void Autonomous::reverse_to_line_until_middle_side_sensor_sees_it (void) {
 }
 
 void Autonomous::raise_arm_to_top_for_travelling (void) {
-  Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("raise_arm_to_top_for_travelling");
+        Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("raise_arm_to_top_for_travelling");
         MotorShoulder.setVelocity(SHOULDER_SPEED_UP, vex::velocityUnits::pct);
         MotorShoulder.startRotateTo(SHOULDER_POS_TOP,vex::rotationUnits::deg);
 }
 
 void Autonomous::move_down_line_to_next_goal_when_front_trackers_see_line (void) {
-  Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("move_down_line_to_next_goal_when_front_trackers_see_line");
+        Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("move_down_line_to_next_goal_when_front_trackers_see_line");
         InertialSensor.setHeading(275, degrees);  // drive down line sideways
         InertialSensor.setRotation(90, degrees);  // drive down line sideways
         int lineStatus = LINELOST;
@@ -112,7 +112,7 @@ void Autonomous::move_down_line_to_next_goal_when_front_trackers_see_line (void)
 }
 
 void Autonomous::scoot_forward_a_little_and_score_ball  (void) {
-  Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("move_claw_off_wheels");
+        Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("move_claw_off_wheels");
         int targetRotationDegrees = 150;
         front_left_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
         front_right_motor.startSpinFor(targetRotationDegrees, rotationUnits::deg, LINESPEED, velocityUnits::pct);
@@ -123,15 +123,19 @@ void Autonomous::scoot_forward_a_little_and_score_ball  (void) {
         wait (1000, msec);
 }
 
-void Autonomous::swivel_back_to_line_until_middle_side_sensor_sees_it (void) {
-  Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("swivel_back_to_line_until_middle_side_sensor_sees_it");
+void Autonomous::swivel_back_to_line_until_middle_side_sensor_sees_it (LeftOrRight swivelDir) {
+        Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("swivel_back_to_line_until_middle_side_sensor_sees_it");
         InertialSensor.resetHeading();
         InertialSensor.resetRotation();
         int lineStatus = LINELOST;
         while (lineStatus != LINEOFFTOLEFT) {
           // basicaly go straight, but correct for gyro
           stabilize_axes_by_gyro (axis1, 0);
-          axis3 = -LINESPEED/2; axis4 = LINESPEED/2;
+          if (swivelDir == kRight) {
+            axis3 = -LINESPEED/2; axis4 = LINESPEED/2;
+          } else { // swivelLeft
+            axis3 = -LINESPEED/2; axis4 = -LINESPEED/2;
+          }
           basic_motor_calculation (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
           normalize_motor_power (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
           apply_motor_power (front_left, back_left, front_right, back_right);
@@ -142,11 +146,15 @@ void Autonomous::swivel_back_to_line_until_middle_side_sensor_sees_it (void) {
         apply_motor_power (0, 0, 0, 0);
 }
 
-void Autonomous::rotate_right_until_front_sensors_are_on_line (void) {
-  Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("rotate_right_until_front_sensors_are_on_line");
+void Autonomous::rotate_until_front_sensors_are_on_line (LeftOrRight rotateDir) {
+        Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("rotate_right_until_front_sensors_are_on_line");
         int lineStatus = LINELOST;
         while (lineStatus == LINELOST) {
-          axis1 = GYROCORRECT; axis3 = 0; axis4 = 0;
+          if (rotateDir == kRight) {
+            axis1 = GYROCORRECT; axis3 = 0; axis4 = 0;
+          } else { // rotate left
+            axis1 = -GYROCORRECT; axis3 = 0; axis4 = 0;
+          }
           basic_motor_calculation (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
           normalize_motor_power (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
           apply_motor_power (front_left, back_left, front_right, back_right);
@@ -162,7 +170,7 @@ void Autonomous::lower_arm (void) {
         while (MotorShoulder.isSpinning()) {task::sleep(100);}
 }
 
-void Autonomous::drive_forward_until_ball_is_off_to_the_left (void) {
+void Autonomous::drive_forward_until_ball_is_off_to_the (LeftOrRight offToThe, BlueOrRed ballColor) {
         Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("drive_forward_until_ball_is_off_to_the_left");
         // abort if we drive too far
         InertialSensor.resetHeading();
@@ -178,8 +186,16 @@ void Autonomous::drive_forward_until_ball_is_off_to_the_left (void) {
           basic_motor_calculation (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
           normalize_motor_power (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
           apply_motor_power (front_left, back_left, front_right, back_right);
-          Vision8.takeSnapshot(Vision8__CHGUP_BALL_BLUE);
-          ballPositioned = (Vision8.objectCount > 0 && Vision8.largestObject.centerX < 15);
+          if (ballColor == kBlue) {
+            Vision8.takeSnapshot(Vision8__CHGUP_BALL_BLUE);
+          } else { // red ball
+            Vision8.takeSnapshot(Vision8__CHGUP_BALL_RED);
+          }
+          if (offToThe == kLeft) {
+            ballPositioned = (Vision8.objectCount > 0 && Vision8.largestObject.centerX < 15);
+          } else { // offToTheRight
+            ballPositioned = (Vision8.objectCount > 0 && Vision8.largestObject.centerX > 85);
+          }
           Brain.Screen.setCursor(1, 1);
           Brain.Screen.clearLine();
           Brain.Screen.print(front_left_motor.position(rotationUnits::deg));
@@ -188,10 +204,14 @@ void Autonomous::drive_forward_until_ball_is_off_to_the_left (void) {
         if (abort) {while(true){Brain.Screen.setCursor(2, 1); Brain.Screen.setPenColor(color::red); Brain.Screen.print("aborted due to distance 1");}}
 }
 
-void Autonomous::rotate_toward_ball (void) {
+void Autonomous::rotate_toward_ball (LeftOrRight rotateDir) {
         Brain.Screen.clearScreen(); Brain.Screen.setCursor(1, 1); Brain.Screen.print("rotate_toward_ball");
         while(InertialSensor.rotation(degrees) >= -25) {
-          axis1 = -GYROCORRECT; axis3 = 0; axis4 = 0;
+          if (rotateDir == kLeft) {
+            axis1 = -GYROCORRECT; axis3 = 0; axis4 = 0;
+          } else { // rotate right
+            axis1 = GYROCORRECT; axis3 = 0; axis4 = 0;
+          }
           basic_motor_calculation (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
           normalize_motor_power (axis1, axis3, axis4, front_left, back_left, front_right, back_right);
           apply_motor_power (front_left, back_left, front_right, back_right);
@@ -411,15 +431,15 @@ void Autonomous::runAutonomous(void) {
 
         scoot_forward_a_little_and_score_ball ();
 
-        swivel_back_to_line_until_middle_side_sensor_sees_it ();
+        swivel_back_to_line_until_middle_side_sensor_sees_it (kRight);
 
-        rotate_right_until_front_sensors_are_on_line ();
+        rotate_until_front_sensors_are_on_line (kRight);
 
         lower_arm();
 
-        drive_forward_until_ball_is_off_to_the_left ();
+        drive_forward_until_ball_is_off_to_the (kLeft, kBlue);
 
-        rotate_toward_ball();
+        rotate_toward_ball(kLeft);
 
         drive_forward_until_ball_is_in_clutches();
 
