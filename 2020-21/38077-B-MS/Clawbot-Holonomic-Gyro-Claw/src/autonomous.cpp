@@ -395,17 +395,27 @@ void Autonomous::runAutonomous(void) {
       break; // end of forever line follow auto
 
     case AUTON_BLUE_LEFT_1_BALL:
-        Brain.Screen.clearScreen();
-        Brain.Screen.setCursor(1, 1);
-        Brain.Screen.print("Variant not implemented");
-
+    case AUTON_RED_LEFT_1_BALL:
         {
         move_claw_off_wheels();
 
-        // grab ball for travelling
-        MotorClaw.startRotateTo(CLAW_CLOSED,vex::rotationUnits::deg);
-        while (MotorClaw.isSpinning()) {task::sleep(100);}
+        grab_ball_for_travelling();
 
+        raise_arm_a_little_for_travelling();
+
+        reverse_to_line_until_middle_side_sensor_sees_it ();
+
+        raise_arm_to_top_for_travelling();
+
+        move_down_line_to_next_goal_when_front_trackers_see_line ();
+
+        scoot_forward_a_little_and_score_ball ();
+
+        swivel_back_to_line_until_middle_side_sensor_sees_it (kRight);
+
+        rotate_until_front_sensors_are_on_line (kRight);
+
+        lower_arm();
         }
 
         break;
