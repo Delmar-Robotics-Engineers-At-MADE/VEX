@@ -47,14 +47,14 @@ void pre_auton(void) {
   MotorClaw.setMaxTorque(80, vex::percentUnits::pct);
   if (!Competition.isCompetitionSwitch() && !Competition.isFieldControl()) {
     Brain.Screen.clearScreen();
-    Brain.Screen.print("Zeroing claw!");
-    MotorClaw.setVelocity(75,vex::velocityUnits::pct);
-    MotorClaw.spin(vex::directionType::rev);
-    while((MotorClaw.current(vex::amp)<0.6)){
-      vex::task::sleep(100);
-      //Brain.Screen.print(MotorClaw.power());
-    }
-    MotorClaw.stop();
+    //Brain.Screen.print("Zeroing claw!");
+    //MotorClaw.setVelocity(75,vex::velocityUnits::pct);
+    //MotorClaw.spin(vex::directionType::rev);
+    //while((MotorClaw.current(vex::amp)<0.6)){
+    //  vex::task::sleep(100);
+    //  //Brain.Screen.print(MotorClaw.power());
+    //}
+    //MotorClaw.stop();
   }
   MotorClaw.setRotation(0,vex::deg);
   MotorClaw.setStopping(vex::brakeType::hold);
