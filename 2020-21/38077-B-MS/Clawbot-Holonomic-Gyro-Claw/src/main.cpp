@@ -123,12 +123,16 @@ void usercontrol() {
     else if(Controller1.ButtonR1.pressing()
          || Controller2.ButtonR1.pressing()) { // highest position
           MotorShoulder.setVelocity(SHOULDER_SPEED_UP, vex::velocityUnits::pct);
-          MotorShoulder.startRotateTo(SHOULDER_POS_TOP,vex::rotationUnits::deg);
+          MotorShoulder.spin(directionType::fwd);
+          // MotorShoulder.startRotateTo(SHOULDER_POS_TOP,vex::rotationUnits::deg);
+
     }
     else if(Controller1.ButtonR2.pressing()
          || Controller2.ButtonR2.pressing()) { // lowest position
           MotorShoulder.setVelocity(SHOULDER_SPEED_DOWN, vex::velocityUnits::pct);
-          MotorShoulder.startRotateTo(SHOULDER_POS_BOTTOM,vex::rotationUnits::deg);
+          MotorShoulder.spin(directionType::rev);
+          // MotorShoulder.startRotateTo(SHOULDER_POS_BOTTOM,vex::rotationUnits::deg);
+
     }
     else { // stop
         MotorShoulder.stop();
@@ -146,11 +150,15 @@ void usercontrol() {
     }
     else if(Controller1.ButtonL1.pressing()
          || Controller2.ButtonL1.pressing()) { // closed position
-          MotorClaw.startRotateTo(CLAW_CLOSED,vex::rotationUnits::deg);
+          MotorClaw.spin(directionType::rev);
+          // MotorClaw.startRotateTo(CLAW_CLOSED,vex::rotationUnits::deg);
+
     }
     else if(Controller1.ButtonL2.pressing()
          || Controller2.ButtonL2.pressing()) { // widest position
-          MotorClaw.startRotateTo(CLAW_OPEN,vex::rotationUnits::deg);
+          MotorClaw.spin(directionType::fwd);
+          // MotorClaw.startRotateTo(CLAW_OPEN,vex::rotationUnits::deg);
+
     }
     else { // stop
         MotorClaw.stop();
