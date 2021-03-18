@@ -13,7 +13,7 @@ void basic_motor_calculation (int axis1, int axis3, int axis4, double &front_lef
 #define CLAW_MID 60
 
 #define SHOULDER_SPEED_UP 40
-#define SHOULDER_SPEED_DOWN 20
+#define SHOULDER_SPEED_DOWN 40
 #define SHOULDER_POS_BOTTOM 110
 #define SHOULDER_POS_TOP 900
 #define SHOULDER_POS_MID 300
