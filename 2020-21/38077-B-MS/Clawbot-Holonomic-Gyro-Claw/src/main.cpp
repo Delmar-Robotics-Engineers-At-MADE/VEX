@@ -169,6 +169,14 @@ void usercontrol() {
     Brain.Screen.print(MotorClaw.position(rotationUnits::deg));
     Brain.Screen.newLine();
 
+    // pneumatic collector
+    if (Controller2.ButtonUp.pressing()) {
+        SolenoidH.on();
+    } else if (Controller2.ButtonDown.pressing()) {
+        SolenoidH.off();
+    }
+
+
     // holonomic control...
 
     int axis1 = 0;

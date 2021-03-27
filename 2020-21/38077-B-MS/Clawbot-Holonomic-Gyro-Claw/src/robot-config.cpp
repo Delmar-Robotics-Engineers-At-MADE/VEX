@@ -21,6 +21,7 @@ line LineTrackerC = line(Brain.ThreeWirePort.C);
 line LineTrackerD = line(Brain.ThreeWirePort.D);
 line LineTrackerE = line(Brain.ThreeWirePort.E);
 line LineTrackerF = line(Brain.ThreeWirePort.F);
+vex::led SolenoidH = vex::led(Brain.ThreeWirePort.H);
 motor MotorClaw = motor(PORT5, ratio18_1, false);
 motor MotorShoulder = motor(PORT6, ratio18_1, false);
 

@@ -18,6 +18,7 @@ extern line LineTrackerC;
 extern line LineTrackerD;
 extern line LineTrackerE;
 extern line LineTrackerF;
+extern vex::led SolenoidH;
 extern motor MotorClaw;
 extern motor MotorShoulder;
 
