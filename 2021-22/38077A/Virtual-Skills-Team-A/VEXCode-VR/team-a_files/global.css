@@ -1,0 +1,372 @@
+@import url(../fonts/octicons.css);
+@import url(../fonts/roboto.css);
+@import url(../fonts/zilla.css);
+
+:root {
+   --grey-50: #FAFAFA;
+  --grey-100: #F5F5F5;
+  --grey-200: #EEEEEE;
+  --grey-300: #E0E0E0;
+  --grey-400: #BDBDBD;
+  --grey-500: #9E9E9E;
+  --grey-600: #757575;
+  --grey-700: #616161;
+  --grey-750: #585858;
+  --grey-800: #424242;
+  --grey-830: #383838;
+  --grey-850: #323232;
+  --grey-870: #2D2D2D;
+  --grey-875: #282828;
+  --grey-890: #222222;
+  --grey-900: #212121;
+  --grey-950: #1d1d1d;
+  --grey-1000: #1a1a1a;
+  --grey-1010: #161B1C;
+  --grey-1020: #272C2F;
+ 
+
+  --title: var( --grey-850 );
+  --title-light: var(--grey-100);
+  --title-complement: #f0db4f;
+
+  --green-700: #407040;
+  --red-700: #704040;
+
+  --vex-foreground: #D4D4D4;
+  --vex-foreground-error:rgb(255, 0, 0);
+  --vex-foreground-warning:rgb(255, 140, 0);
+  --vex-background: var(--grey-900);
+  --vex-disabled-color: var(--grey-800);
+  --vex-tab-background: var(--grey-830);
+  --vex-project-background: var(--grey-875);
+  --vex-status-background: var(--grey-800);
+  --vex-tab-color: var(--grey-400);
+  --vex-tab-container-background:  var(--grey-875);
+  --vex-tab-active-color: #FFFFFF;
+  --vex-tab-active-background: #1E1E1E;
+  --vex-tab-hover-background: var(--grey-950);
+  --vex-nav-button-color: #a3a3a3;
+
+  --checkbox-color: #0066CC;
+  --checkbox-color-locked: #0066cc75;
+  --loading-color: #0066CC;
+  --tab-scroll-color: #0066CC;
+  --problems-filter-color:#0066CC;
+  --titlebar-height: 22px;
+  --titlebar-color: var(--grey-850);
+  --problem-row-color:#0066CC; 
+}
+
+
+html,
+body {
+  font-family: 'Roboto', sans-serif;
+  /* -webkit-font-smoothing: antialiased; */
+  /* -moz-font-smoothing: antialiased; */
+  /* -moz-osx-font-smoothing: grayscale; */
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+  height: 100%;
+  background: var(--vex-background);
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  color: var(--vex-foreground);
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+input {
+  font-family: 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+#app {
+  height: 100%;
+}
+.app-container {
+  position: absolute;
+  top: var(--titlebar-height);
+  height: calc( 100% - var(--titlebar-height));
+  width: 100%;
+}
+::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+::-webkit-scrollbar-thumb {
+  transition: 0.3s ease all;
+  border-color: transparent;
+  background-color: rgba(255, 255, 255, 0.1);
+  z-index: 40;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  transition: 0.3s ease all;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.react-console::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.react-console::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.monaco-editor.vs .squiggly-error,
+.monaco-editor.vs-dark .squiggly-error,
+.monaco-editor.vcs-theme .squiggly-error {
+  background-color: rgba(255,0,0,0.4);
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%206%203'%20enable-background%3D'new%200%200%206%203'%20height%3D'3'%20width%3D'6'%3E%3Cg%20fill%3D'%23ea4646'%3E%3Cpolygon%20points%3D'5.5%2C0%202.5%2C3%201.1%2C3%204.1%2C0'%2F%3E%3Cpolygon%20points%3D'4%2C0%206%2C2%206%2C0.6%205.4%2C0'%2F%3E%3Cpolygon%20points%3D'0%2C2%201%2C3%202.4%2C3%200%2C0.6'%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") repeat-x bottom left;
+}
+.monaco-editor.vs .squiggly-warning,
+.monaco-editor.vs-dark .squiggly-warning,
+.monaco-editor.vcs-theme .squiggly-warning {
+  background-color: rgba(255,192,0,0.2);
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%206%203'%20enable-background%3D'new%200%200%206%203'%20height%3D'3'%20width%3D'6'%3E%3Cg%20fill%3D'%234d9e4d'%3E%3Cpolygon%20points%3D'5.5%2C0%202.5%2C3%201.1%2C3%204.1%2C0'%2F%3E%3Cpolygon%20points%3D'4%2C0%206%2C2%206%2C0.6%205.4%2C0'%2F%3E%3Cpolygon%20points%3D'0%2C2%201%2C3%202.4%2C3%200%2C0.6'%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") repeat-x bottom left;
+}
+
+.monaco-editor .zone-widget.internal-sdk-file .view-lines {
+  pointer-events: none;
+}
+
+.vexStudioHeader {
+  font-family: 'Zilla Slab', serif;
+  font-size: 16px;
+  width: 100%;
+  height: 40px;
+  /* font-weight: bold; */
+  border-bottom-color: #1c2022;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  background-color: var(--title);
+}
+
+
+.terminal .xterm-viewport {
+  background-color: #24282A;
+}
+
+.consoleContainer {
+  padding: 4px;
+  width: 100%;
+  height: 100%;
+}
+
+.terminal {
+  color: var(--vex-foreground);
+  font-family: 'Roboto Mono', courier-new, courier, monospace;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.monaco-editor .find-widget > .find-part .monaco-inputbox > .wrapper > .input, .monaco-editor .find-widget > .replace-part .monaco-inputbox > .wrapper > .input {
+  outline-width: 1px;
+}
+
+.monaco-editor .find-widget .button.left {
+  outline-width: 0px;
+}
+
+.monaco-editor .margin {
+  user-select: none;
+}
+
+.fill {
+  width: 100%;
+  height: 100%;
+}
+.vs-light .monaco-tree {
+  font-family: -apple-system,BlinkMacSystemFont,Segoe WPC,Segoe UI,HelveticaNeue-Light,Ubuntu,Droid Sans,sans-serif;
+  outline: none;
+}
+.vs-light .monaco-tree-row {
+  font-size: 14px;
+  line-height: 24px;
+}
+.vs-light .monaco-tree-row.has-children >.content:before  {
+  padding-left: 0px;
+}
+.vs-light .monaco-tree .monaco-tree-rows > .monaco-tree-row:hover:not(.highlighted):not(.selected):not(.focused) {
+  /* color when user is hover over a file in a tree */
+  background: var(--grey-300) !important;
+  color: #3FA9F5;
+}
+.vs-light .monaco-tree .monaco-tree-rows > .monaco-tree-row.selected:not(.highlighted) {
+  /* color when file is selected but not in focus I THINK */
+  background-color: #ADD6FF !important;
+  color: #0600FF !important;
+}
+.vs-light .monaco-tree .monaco-tree-rows > .monaco-tree-row:focus.selected {
+  color: #0600FF;
+}
+
+.octicon {
+  display: inline-block;
+  vertical-align: text-top;
+  fill: currentColor;
+}
+
+.error{
+    font-size:11px;
+    color: #ff0000;
+}
+
+
+.monaco-icon-label.dirty::after {
+  content: "M";
+  font-size: 10px;
+}
+
+.monaco-icon-label.transient::after {
+  content: "T";
+  font-size: 10px;
+}
+
+.monaco-icon-label.dirty.transient::after {
+  content: "M T";
+  font-size: 10px;
+}
+
+.context-view.monaco-menu-container {
+  max-height: 380px;
+  overflow-y: scroll;
+  position: fixed;
+}
+.context-view.monaco-menu-container::-webkit-scrollbar-corner {
+  background: #2D2F31
+}
+
+.context-view.monaco-menu-container::-webkit-scrollbar {
+  width: 0.05rem;
+}
+/* Menu Item Styles */
+
+.action-menu-item:hover {
+  background: var(--grey-300);
+}
+.action-label::selection {
+  background: none;
+}
+
+.action-label::-moz-selection {
+  background: none;
+}
+
+.action-label.ruler {
+  border-top: 1px solid var(--grey-800);
+}
+
+.action-label::before {
+  padding-right: 8px;
+  width: 12px;
+  display: inline-block;
+  text-align: center;
+}
+
+.action-label.octicon-file-add::before {
+  font-family: octicons;
+  content: '\f05d';
+}
+
+.action-label.octicon-cloud-download::before {
+  font-family: octicons;
+  content: '\f00b';
+}
+
+.action-label.octicon-cloud-upload::before {
+  font-family: octicons;
+  content: '\f00c';
+}
+
+.action-label.octicon-pencil::before {
+  font-family: octicons;
+  content: '\f058';
+}
+
+.action-label.octicon-x::before {
+  font-family: octicons;
+  content: '\f081';
+}
+
+.action-label.octicon-quote::before {
+  font-family: octicons;
+  content: '\f063';
+}
+
+.action-label.octicon-gear::before {
+  font-family: octicons;
+  content: '\f02f';
+}
+
+.action-label.octicon-verified::before {
+  font-family: octicons;
+  content: '\f02f';
+}
+
+.action-label.octicon-file-code::before {
+  font-family: octicons;
+  content: '\f010';
+}
+
+.action-label.octicon-file-binary::before {
+  font-family: octicons;
+  content: '\f094';
+}
+
+.action-label.octicon-check::before {
+  font-family: octicons;
+  content: '\f03a';
+}
+
+.action-label.octicon-gist::before {
+  font-family: octicons;
+  content: '\f00e';
+}
+.action-label.octicon-lock::before {
+  font-family: octicons;
+  content: '\f06a';
+}
+
+.label-name.error-dark::before {
+  content: url("./svg/error-dark.svg");
+  padding-right: 4px;
+  position: relative;
+  top: 4px;
+}
+
+.label-name.warning-dark::before {
+  content: url("./svg/warning-dark.svg");
+  padding-right: 4px;
+  position: relative;
+  top: 4px;
+}
+
+.label-name.info-dark::before {
+  content: url("./svg/info-dark.svg");
+  padding-right: 4px;
+  position: relative;
+  top: 4px;
+}
+
+.browser-not-supported-description {
+  font-family: 'Roboto', sans-serif;
+  padding: 8px;
+  line-height: 1.5em;
+  font-size: 18px;
+}
+.browser-not-supported-description a {
+  color: #c0b9f0;
+}
+.show-file-icons .cpp-lang-file-icon.file-icon::before {  color: #a074c4; content: '\E015'; }
